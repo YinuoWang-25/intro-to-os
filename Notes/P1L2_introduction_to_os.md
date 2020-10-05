@@ -43,6 +43,8 @@ In addition, a computing system can have higher level applications. These are th
 
 The Operating System is the layer of software that sits **between** the hardware components and the higher level applications.
 
+===========
+
 Main Functions of an Operating System
 Operating systems hide hardware complexity.
 You don't want to have to worry about the nuts and bolts of interacting with storage devices when you are writing an application. The operating system provides a higher level abstraction, the file, with a number of operations - like read and write - which applications can interact with.
