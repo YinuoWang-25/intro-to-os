@@ -171,3 +171,19 @@ For example:
 - malloc (memory)
 
 Operating systems also support signals, which is a way for the operating system to send notifications to the application.
+
+## System Call Flow
+
+![system call](system_call1.png)
+
+Begin within the context of a currently executing process. The process needs access to some hardware, and thus needs to make a system call. The application makes the system call (potentially passing arguments), and control is passed to the operating system, which accesses the hardware. Execution control (as well as any necessary data) is passed back from the operating system to the application process.
+
+In terms of context switching, the process involves a change from user-mode to kernel-mode to user-mode.
+
+Not necessarily a cheap operation to make a system call!
+
+Arguments to system call can either be passed directly from process to operating system, or they can be passed indirectly by specifying their address
+
+![system call](system_call2.png)
+
+In synchronous mode, the process waits until the system call completes. Asynchronous modes exist also.
