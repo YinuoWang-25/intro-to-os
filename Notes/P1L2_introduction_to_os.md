@@ -187,3 +187,17 @@ Arguments to system call can either be passed directly from process to operating
 ![system call](system_call2.png)
 
 In synchronous mode, the process waits until the system call completes. Asynchronous modes exist also.
+
+## Crossing the OS Boundary
+
+User/Kernel transitions are very common and useful throughout the course of application execution.
+
+- hardware supported
+
+  For example, the hardware will cause a trap on illegal executions that require special privilege. Hardware initiates transfer of control from process to operating system when a trap occurs.
+
+- Requires instructions to execute, which can take ~100ns on a 2Ghz Linux box.
+
+- Switches locality: affects hardware cache!
+
+- Not cheap
