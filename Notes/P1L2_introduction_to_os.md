@@ -43,47 +43,72 @@ In addition, a computing system can have higher level applications. These are th
 
 The Operating System is the layer of software that sits **between** the hardware components and the higher level applications.
 
-Main Functions of an Operating System
-Operating systems hide hardware complexity.
-You don't want to have to worry about the nuts and bolts of interacting with storage devices when you are writing an application. The operating system provides a higher level abstraction, the file, with a number of operations - like read and write - which applications can interact with.
+### Main Functions of an Operating System
 
-Operating systems manages underlying hardware resources.
-Operating system allocates memory for applications, schedules them for execution on the CPU, controls access to various network devices and so on.
+1.  Hide hardware complexity.<br>
+    The operating system provides a higher level abstraction, the file, with a number of operations - like read and write - which applications can interact with.
 
-Provides isolation and protection.
-When applications are running concurrently, the operation system has to ensure that they can do what they need to without hurting one another. For example, memory allocated to each application must not be readable/writable from another application.
+2.  manages underlying hardware resources. <br>
+    Operating system allocates memory for applications, schedules them for execution on the CPU, controls access to various network devices and so on.
 
-Operating System Definition
-An operating system is a layer of systems software that
+3.  Provides isolation and protection.<br>
+    When applications are running concurrently, the operation system has to ensure that they can do what they need to without hurting one another. For example, memory allocated to each application must not be readable/writable from another application.
 
-directly has privileged access to the underlying hardware;
-manages hardware on behalf of one or more applications according to some predefined policies.
-Ensures that applications are isolated and protected from one another
-Operating System Examples
-Certain operating systems may target the desktop environment, while others may target an embedded environment, while still others may target a mainframe or a server environment.
+## Operating System Definition
 
-For our purposes, we will focus mainly on operating systems for desktop environments and embedded environments.
+An operating system is a layer of systems software that:
+
+- directly has privileged access to the underlying hardware
+- hide the hardware complexity
+- manages hardware on behalf of one or more applications according to some predefined policies.
+- Ensures that applications are isolated and protected from one another
+
+## Operating System Examples
+
+Certain operating systems may target:
+
+- desktop environment
+- embedded environment
+- a mainframe or a server environment
+
+We will focus on operating systems for desktop environments and embedded environments.
 
 For desktop operating systems we have:
 
-Microsoft Windows
-Unix-based systems OS X Linux
+- Microsoft Windows
+- Unix-based
+  - Mac OSX (BSD)
+  - Linux (Ubuntu, Centos, Fedora)
+
 For embedded operating systems:
 
-Android
-iOS
-Symbian
-OS Elements
-To achieve its goals, an operating systems provides a number of high level abstractions, as well as a number of mechanisms to operate on these abstractions.
+- Android
+- iOS
+- Symbian
 
-Examples of abstractions include:
+## OS Elements
 
-process, thread (application abstractions)
-file, socket, memory page (hardware abstractions)
-Corresponding mechanisms could be:
+To achieve its goals, an operating systems provides:
 
-create/schedule
-open/write/allocate
+1. High level **abstractions**
+2. **mechanisms** to operate on these abstractions.
+3. **Policies** (how mechanisms will be used)
+
+### Examples of abstractions
+
+- application abstractions: process, thread
+- hardware abstractions: file, socket, memory page
+
+### Corresponding mechanisms
+
+- create/schedule
+- open/write/allocate
+
+### Policies (how mechanisms will be used)
+
+- least-recently used (LRU)
+- earliest deadline first (EDF)
+
 Operating systems may also integrate specific policies that determine exactly how the mechanisms will be used to manage the underlying hardware.
 
 For example, a policy could determine the maximum number of sockets that a process has access to.
