@@ -201,3 +201,28 @@ User/Kernel transitions are very common and useful throughout the course of appl
 - Switches locality: affects hardware cache!
 
 - Not cheap
+
+## OS Services
+
+An operating system provides applications with access to the underlying hardware.
+
+It does so by exporting a number of services, which are often directly linked to the components of the hardware:
+
+- Scheduling component (CPU)
+- Memory manager (physical memory)
+- Block device driver (block device)
+
+In addition, some services are even higher level abstractions, not having a direct hardware component. For example, the filesystem as a service.
+
+### Basic services
+
+- Process management
+- File management
+- Device management
+- Memory management
+- Storage management
+- Security
+
+### Linux VS Windoes
+
+![system calls](assets/p1l2/system_calls.png)
