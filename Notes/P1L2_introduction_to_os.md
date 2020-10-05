@@ -120,6 +120,7 @@ The operating system integrates mechanisms to operate on that page like allocate
 Over time, the page may be moved to different spaces of memory, or may be moved to disk, but those who use the page abstraction don't have to worry about those details. That's the point of the abstraction.
 
 How do we determine when to move the page from DRAM to disk? This is an example of a policy, and one such implementation of that policy would use the least-recently-used (LRU) algorithm, moving pages that have been accessed longest ago onto disk.
+<<<<<<< HEAD
 
 ## Design Principles
 
@@ -138,3 +139,5 @@ In different settings, different policies make more sense.
 - What are the workload requirements?
 
 Understanding the common case - which may change in different contexts - helps the OS implement the correct policy, which of course relies on generalized mechanisms.
+=======
+>>>>>>> 52fe03408e35fcaef244363bb9c57ba14a892c1d
