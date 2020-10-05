@@ -25,7 +25,7 @@ the underlying hardware systems
 
 ## What is OS?
 
-![What's os](os.png)
+![What's os](assets/p1l2/os.png)
 
 Let's first look at the hardware of a computing system. This computing system consists of:
 
@@ -141,7 +141,7 @@ Understanding the common case - which may change in different contexts - helps t
 
 ## OS Protection Boundary
 
-![boundary protection](boundary_protection.png)
+![boundary protection](assets/p1l2/boundary_protection.png)
 
 Computer systems distinguish between at least two modes of execution:
 
@@ -174,7 +174,7 @@ Operating systems also support signals, which is a way for the operating system 
 
 ## System Call Flow
 
-![system call](system_call1.png)
+![system call](assets/p1l2/system_call1.png)
 
 Begin within the context of a currently executing process. The process needs access to some hardware, and thus needs to make a system call. The application makes the system call (potentially passing arguments), and control is passed to the operating system, which accesses the hardware. Execution control (as well as any necessary data) is passed back from the operating system to the application process.
 
@@ -184,7 +184,7 @@ Not necessarily a cheap operation to make a system call!
 
 Arguments to system call can either be passed directly from process to operating system, or they can be passed indirectly by specifying their address
 
-![system call](system_call2.png)
+![system call](assets/p1l2/system_call2.png)
 
 In synchronous mode, the process waits until the system call completes. Asynchronous modes exist also.
 
