@@ -1,6 +1,4 @@
-# What is an operating system?
-
-## Simple Definition
+# Simple Definition
 
 a piece of software that:<br>
 
@@ -9,7 +7,7 @@ a piece of software that:<br>
 
 the underlying hardware systems
 
-## Shop Manager Metaphor
+# Shop Manager Metaphor
 
 ### A shop manager
 
@@ -23,7 +21,7 @@ the underlying hardware systems
 - Enforces working policies: fair resource access, limits to resource usage
 - Mitigates difficulty of complex tasks: abstract hardware details (system calls)
 
-## What is OS?
+# What is OS?
 
 ![What's os](assets/p1l2/os.png)
 
@@ -54,7 +52,7 @@ The Operating System is the layer of software that sits **between** the hardware
 3.  Provides isolation and protection.<br>
     When applications are running concurrently, the operation system has to ensure that they can do what they need to without hurting one another. For example, memory allocated to each application must not be readable/writable from another application.
 
-## Operating System Definition
+# Operating System Definition
 
 An operating system is a layer of systems software that:
 
@@ -63,7 +61,7 @@ An operating system is a layer of systems software that:
 - manages hardware on behalf of one or more applications according to some predefined policies.
 - Ensures that applications are isolated and protected from one another
 
-## Operating System Examples
+# Operating System Examples
 
 Certain operating systems may target:
 
@@ -86,7 +84,7 @@ For embedded operating systems:
 - iOS
 - Symbian
 
-## OS Elements
+# OS Elements
 
 To achieve its goals, an operating systems provides:
 
@@ -109,7 +107,7 @@ To achieve its goals, an operating systems provides:
 - least-recently used (LRU)
 - earliest deadline first (EDF)
 
-## OS Elements Example
+# OS Elements Example
 
 Let's look at an example of memory management.
 
@@ -121,7 +119,7 @@ Over time, the page may be moved to different spaces of memory, or may be moved 
 
 How do we determine when to move the page from DRAM to disk? This is an example of a policy, and one such implementation of that policy would use the least-recently-used (LRU) algorithm, moving pages that have been accessed longest ago onto disk.
 
-## Design Principles
+# Design Principles
 
 ### Separation of mechanism and policy
 
@@ -139,7 +137,7 @@ In different settings, different policies make more sense.
 
 Understanding the common case - which may change in different contexts - helps the OS implement the correct policy, which of course relies on generalized mechanisms.
 
-## OS Protection Boundary
+# OS Protection Boundary
 
 ![boundary protection](assets/p1l2/boundary_protection.png)
 
@@ -172,7 +170,7 @@ For example:
 
 Operating systems also support signals, which is a way for the operating system to send notifications to the application.
 
-## System Call Flow
+# System Call Flow
 
 ![system call](assets/p1l2/system_call1.png)
 
@@ -188,7 +186,7 @@ Arguments to system call can either be passed directly from process to operating
 
 In synchronous mode, the process waits until the system call completes. Asynchronous modes exist also.
 
-## Crossing the OS Boundary
+# Crossing the OS Boundary
 
 User/Kernel transitions are very common and useful throughout the course of application execution.
 
@@ -202,7 +200,7 @@ User/Kernel transitions are very common and useful throughout the course of appl
 
 - Not cheap
 
-## OS Services
+# OS Services
 
 An operating system provides applications with access to the underlying hardware.
 
@@ -226,3 +224,36 @@ In addition, some services are even higher level abstractions, not having a dire
 ### Linux VS Windoes
 
 ![system calls](assets/p1l2/system_calls.png)
+
+# Monolithic OS
+
+![Monolithic OS](assets/p1l2/mono-os1.png)
+![Monolithic OS](assets/p1l2/mono-os2.png)
+
+# Modular OS
+
+![Modular OS](assets/p1l2/modular_os.png)
+
+This type of operating system has a basic set of services and APIs that come with it.
+
+Anything not included can be added, as a module.
+
+As a result, each application can interface with the operating systems in the ways that make most sense to it.
+
+Dynamically install new modules in the operating system!
+
+# Microkernel
+
+Microkernels only require the most basic operating system components.
+
+Everything else (including file systems and disk drivers) will run outside of the operating system at user-level.
+
+This setup requires lots of interprocess communication (IPC), as the traditional operating system components run within application processes.
+
+![Microkernel](assets/p1l2/microkernel.png)
+
+# Linux and Mac OS Architecture
+
+![linux architecture](assets/p1l2/linux-arch.png)
+
+![mac architecture](assets/p1l2/mac-arch.png)
