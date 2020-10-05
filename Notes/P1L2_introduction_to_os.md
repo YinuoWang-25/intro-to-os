@@ -138,3 +138,36 @@ In different settings, different policies make more sense.
 - What are the workload requirements?
 
 Understanding the common case - which may change in different contexts - helps the OS implement the correct policy, which of course relies on generalized mechanisms.
+
+## OS Protection Boundary
+
+![boundary protection](boundary_protection.png)
+
+Computer systems distinguish between at least two modes of execution:
+
+- user-level (unprivileged)
+- kernel-level (privileged)
+
+Because an OS must have direct access to hardware, it must operate in kernel mode.
+
+Applications generally operate in user-mode.
+
+Hardware access can only be utilized in the kernel mode from the OS directly.
+
+Crossing from user-level to kernel-level is supported by most modern operating systems.
+
+As an example, the operating system can flip a bit in the CPU that allows applications executing instructions to have direct access to hardware resources. When the bit is not flipped, operations are forbidden.
+
+When privileged instructions are encountered during a non-privileged execution, the application will be trapped. This means the application's execution will be interrupted, and control will be handed back to the OS.
+
+The OS can decide whether to grant the access or potentially terminate the process.
+
+The OS also exposes an interface of system calls, which the application can invoke, which allows privileged access of hardware resources for the application on behalf of the operating system.
+
+For example:
+
+- open (file)
+- send (socket)
+- mmap (memory)
+
+Operating systems also support signals, which is a way for the operating system to send notifications to the application.
