@@ -120,3 +120,21 @@ The operating system integrates mechanisms to operate on that page like allocate
 Over time, the page may be moved to different spaces of memory, or may be moved to disk, but those who use the page abstraction don't have to worry about those details. That's the point of the abstraction.
 
 How do we determine when to move the page from DRAM to disk? This is an example of a policy, and one such implementation of that policy would use the least-recently-used (LRU) algorithm, moving pages that have been accessed longest ago onto disk.
+
+## Design Principles
+
+### Separation of mechanism and policy
+
+We want to incorporate flexible mechanisms that can support a number of policies.
+
+For the example of memory, we can have many policies: LRU, LFU (least-frequently used), random. It is a good design strategy to create our memory management mechanisms such that they can generalize to these different policies.
+
+In different settings, different policies make more sense.
+
+### Optimize for the common case
+
+- Where will the OS be used?
+- What will the user want to execute on that machine?
+- What are the workload requirements?
+
+Understanding the common case - which may change in different contexts - helps the OS implement the correct policy, which of course relies on generalized mechanisms.
