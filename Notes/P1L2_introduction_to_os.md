@@ -25,7 +25,7 @@ the underlying hardware systems
 
 ## What is OS?
 
-![What's os](/assets/images/os.png)
+![What's os](os.png)
 
 Let's first look at the hardware of a computing system. This computing system consists of:
 
