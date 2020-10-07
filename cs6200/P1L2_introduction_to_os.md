@@ -227,8 +227,8 @@ In addition, some services are even higher level abstractions, not having a dire
 
 # Monolithic OS
 
-![Monolithic OS](assets/p1l2/mono-os1.png)
-![Monolithic OS](assets/p1l2/mono-os2.png)
+![Monolithic OS](assets/p1l2/mono_os1.png)
+![Monolithic OS](assets/p1l2/mono_os2.png)
 
 # Modular OS
 
