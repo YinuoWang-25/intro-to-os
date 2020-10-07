@@ -115,4 +115,16 @@ executing a special operation called a **system call (monitor call)**
 
 - An operating system is interrupt driven
 
+#### Interrupt Handling
+
+The operating system preserves the state of the CPU by storing registers and the program counter
+
+Determines which type of interrupt has occurred:
+
+- polling
+- vectored interrupt system
+
+Separate segments of code determine what action should be taken for each type of interrupt<br>
+<br>
+
 ## Storage Structure
