@@ -128,3 +128,50 @@ Separate segments of code determine what action should be taken for each type of
 <br>
 
 ## Storage Structure
+
+### Main memory
+
+- CPU can laod instructions **only** from memory
+
+- General-purpose computers run most from **rewriteble memory** (**main mamory** / **random-access memory**/ **RAM**)
+
+- commonly implemented in **DRAM** (dynamic random-access memory)
+
+#### instructions
+
+##### Load
+
+moves a byte or word from main memory to an internal register within CPU
+
+##### store
+
+moves the content of a register to main memory
+
+#### Cannot resides programs and data in main memory permanenty
+
+1. too small to store all
+
+2. **volatile** storage device that loses its contents when power is tuerned off or otherwise lost<br>
+   <br>
+
+### Secondary storage
+
+- extension of main memory
+- provides large **nonvolatile** storage capacity
+- most common device - **magnetic disk**
+
+### Solid-state disk
+
+- faster than magnetic disks, nonvolatile
+
+### Storage Hierarchy
+
+Storage systems organized in hierarchy
+
+- Speed
+- Cost
+- Volatility
+
+![storage hierarchy](assets/ch1/storage_hierarchy.png)
+
+# Computer-System Architecture
