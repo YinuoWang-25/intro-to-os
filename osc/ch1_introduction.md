@@ -1,4 +1,4 @@
-# What is an Operating System
+### What is an Operating System
 
 A program that acts as an intermediary between a user of a computer and the computer hardware
 
@@ -8,7 +8,7 @@ A program that acts as an intermediary between a user of a computer and the comp
 - Make the computer system convenient to use
 - Use the computer hardware in an efficient manner
 
-# Computer System Structure
+### Computer System Structure
 
 Computer system can be divided into four components:
 
@@ -94,3 +94,25 @@ sending a signal to the CPU by the way of the system bus
 #### software
 
 executing a special operation called a **system call (monitor call)**
+
+#### When CPU interrupted
+
+1. Cpu stops and transfers executuins to a **fixed location** (contains the starting address whether the service routine for the interrupt is located)
+
+2. interrupt service routine executes
+
+3. CPU resumes the interrupted computation.
+
+![Interrupt Timeline](assets/ch1/interrupt_timeline.png)
+
+#### Common Functions of Interrupts
+
+- Interrupt transfers control to the interrupt service routine generally, through the **interrupt vector**, which contains the addresses of all the service routines
+
+- Interrupt architecture must save the address of the interrupted instruction
+
+- A trap or exception is a software-generated interrupt caused either by an error or a user request
+
+- An operating system is interrupt driven
+
+## Storage Structure
