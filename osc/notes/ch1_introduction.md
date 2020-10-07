@@ -350,3 +350,21 @@ The operating system is responsible for the following activities in connection w
 - Providing mechanisms for process synchronization
 - Providing mechanisms for process communication
 - Providing mechanisms for deadlock handling
+  <br>
+  <br>
+
+# Memory Management
+
+To execute a program all (or part) of the instructions must be in memory
+
+All (or part) of the data that is needed by the program must be in memory.
+
+Memory management determines what is in memory and when
+
+- Optimizing CPU utilization and computer response to users
+
+Memory management activities
+
+- Keeping track of which parts of memory are currently being used and by whom
+- Deciding which processes (or parts thereof) and data to move into and out of memory
+- Allocating and deallocating memory space as needed
