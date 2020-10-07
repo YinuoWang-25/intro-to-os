@@ -186,7 +186,8 @@ Most computer systems use a single general-purpose processor
 ### Components
 
 - main CPU executing a general-purpose instruction set
-- other special-purpose processors as well
+- other special-purpose processors as well<br>
+  <br>
 
 ## Multiprocessor Systems
 
@@ -230,4 +231,23 @@ Have two or more processors in close communication, sharing computer buss and so
 
 Recent trend: include multiple computing cores on a single chip (**multicore**)
 
-![dual core](assets/ch1/dual-core.png)
+![dual core](assets/ch1/dual-core.png) <br>
+<br>
+
+## Clustered Systems
+
+clustered_system
+![Clustered System](assets/ch1/clustered_system.png)
+
+- Another type pf multiprocessor system
+- Diff: composed of two or more individual systems joined together
+- Loosely coupled
+- Provides a high-availability service which survives failures
+  - Asymmetric clustering has one machine in hot-standby mode
+  - Symmetric clustering has multiple nodes running applications, monitoring each other
+- Also for high-performance computing (HPC)
+  - Applications must be written to use parallelization
+- Some have **distributed lock manager (DLM)** to avoid conflicting operations <br>
+  <br>
+
+# Operating-System Structure
