@@ -322,4 +322,31 @@ Timer to prevent infinite loop / process hogging resources, and ensure os mainta
 
 <br>
 
-# 1.6 Process Management
+# Process Management
+
+A process is a program in execution. It is a unit of work within the system. Program is a passive entity, process is an active entity.
+
+Process needs resources to accomplish its task
+
+- CPU, memory, I/O, files
+- Initialization data
+
+Process termination requires reclaim of any reusable resources
+
+Single-threaded process has one program counter specifying location of next instruction to execute
+
+- Process executes instructions sequentially, one at a time, until completion
+
+Multi-threaded process has one program counter per thread
+
+Typically system has many processes, some user, some operating system running concurrently on one or more CPUs
+
+- Concurrency by multiplexing the CPUs among the processes / threads
+
+The operating system is responsible for the following activities in connection with process management:
+
+- Creating and deleting both user and system processes
+- Suspending and resuming processes
+- Providing mechanisms for process synchronization
+- Providing mechanisms for process communication
+- Providing mechanisms for deadlock handling
