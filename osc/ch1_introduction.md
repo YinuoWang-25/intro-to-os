@@ -176,3 +176,58 @@ Storage systems organized in hierarchy
 <br>
 
 # Computer-System Architecture
+
+## Single-Processor Systems
+
+Most computer systems use a single general-purpose processor
+
+![single processor](assets/ch1/single_processor.png)
+
+### Components
+
+- main CPU executing a general-purpose instruction set
+- other special-purpose processors as well
+
+## Multiprocessor Systems
+
+![multiple processor](assets/ch1/multi_processors.png)
+
+Also known as parallel systems, tightly-coupled systems
+
+Have two or more processors in close communication, sharing computer buss and sometimes the clock, memory, and peripheral devices
+
+### Advantages
+
+1. Increased throughput
+
+   Get more work done in less time
+
+   The speed-up ratio with N processors is not N
+
+2. Economy of scale
+
+   cost less than equivalent multiple single-processor systems because they can share peripherals, mass storage and power suppplies.
+
+3. Increased reliability
+
+   The faillure of one processor will not halt the system, only slow it down
+
+### Two types
+
+1. Asymmetric Multiprocessing
+
+   - each processor is assigned a specie task.
+
+   - boss-worker relationship
+
+2. Symmetric Multiprocessing (commonly)
+
+   - each processor performs all tasks
+   - all processors are peers
+   - all processors share physical memory while each processor has own set of registers and cache
+
+### A Dual-Core Design
+
+Recent trend: include multiple computing cores on a single chip (**multicore**)
+
+![dual core](assets/ch1/dual-core.png)
