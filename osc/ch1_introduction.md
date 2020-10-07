@@ -277,3 +277,45 @@ Logical extension in which CPU switches jobs so frequently that users can intera
   <br>
 
 # Operating-System Operations
+
+Interrupt driven (hardware and software)
+
+- Hardware interrupt by one of the devices
+- Software interrupt (exception or trap)
+  - Software error (e.g., division by zero)
+  - Request for operating system service
+  - Other process problems include infinite loop, processes modifying each other or the operating system
+
+We need to make sure an error in a user program could cause problems only for the one program running.<br>
+
+## Dual-Mode and Multimode Operation
+
+Dual-mode operation allows OS to protect itself and other system components
+
+- User Mode and Kernel Mode
+- Mode bit provided by hardware
+
+  - 0 for kernel and 1 for user
+  - Provides ability to distinguish when system is running user code or kernel code
+  - Some instructions designated as privileged, only executable in kernel mode - protect os from errant users
+  - System call changes mode to kernel, return from call resets it to user
+
+![Mode transtion](assets/ch1/mode_transition.png)
+
+- Increasingly CPUs support multi-mode operations
+  - i.e. virtual machine manager (VMM) mode for guest VMs
+
+## Timer
+
+Timer to prevent infinite loop / process hogging resources, and ensure os maintains contiol over CPU
+
+- Timer is set to interrupt the computer after some time period
+
+- Fixed timer
+- variable timer
+
+  - fixed-rate clock and a counter
+  - counter is decremented by the physical clock
+  - Operating system set the counter (privileged instruction)
+  - When counter zero generate an interrupt
+  - Set up before scheduling process to regain control or terminate program that exceeds allotted time
