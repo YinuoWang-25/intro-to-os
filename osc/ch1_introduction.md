@@ -172,6 +172,7 @@ Storage systems organized in hierarchy
 - Cost
 - Volatility
 
-![storage hierarchy](assets/ch1/storage_hierarchy.png)
+![storage hierarchy](assets/ch1/storage_hierarchy.png) <br>
+<br>
 
 # Computer-System Architecture
