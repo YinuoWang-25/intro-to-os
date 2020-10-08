@@ -582,3 +582,99 @@ A seperate stub exists for each separate remote procedure
    Require extra overhead of the initial request but more flexible
 
    ![rpc](assets/ch3/rpc.png)
+   <br>
+
+## Pipes
+
+Acts as a conduit allowing two processes to communicate
+
+### Issues
+
+- Is communication unidirectional or bidirectional?
+
+- In the case of two-way communication, is it half or full-duplex?
+
+- Must there exist a relationship (i.e., parent-child) between the communicating processes?
+
+- Can the pipes be used over a network?
+
+### Ordinary Pipes
+
+Ordinary Pipes allow communication in standard producer-consumer style
+
+Producer writes to one end (the write-end of the pipe)
+
+Consumer reads from the other end (the read-end of the pipe)
+
+Ordinary pipes are therefore unidirectional
+
+Require parent-child relationship between communicating processes
+
+![ordinary_pipe](assets/ch3/ordinary_pipe.png)
+
+```c
+#include <sys/types.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#define BUFFER SIZE 25
+#define READ END 0
+#define WRITE END 1
+int main(void)
+{
+    char write msg[BUFFER SIZE] = "Greetings";
+    char read msg[BUFFER SIZE];
+    int fd[2];
+    pid t pid;
+
+    /* create the pipe */
+    if (pipe(fd) == -1) {
+        fprintf(stderr,"Pipe failed");
+        return 1;
+    }
+
+    /* fork a child process */
+    pid = fork();
+
+    if (pid < 0) { /* error occurred */
+        fprintf(stderr, "Fork Failed");
+        return 1;
+    }
+
+    if (pid > 0) { /* parent process */
+        /* close the unused end of the pipe */
+        close(fd[READ END]);
+
+        /* write to the pipe */
+        write(fd[WRITE END], write msg, strlen(write msg)+1);
+
+        /* close the write end of the pipe */
+        close(fd[WRITE END]);
+    }
+    else { /* child process */
+        /* close the unused end of the pipe */
+        close(fd[WRITE END]);
+        /* read from the pipe */
+        read(fd[READ END], read msg, BUFFER SIZE);
+        printf("read %s",read msg);
+        /* close the write end of the pipe */
+        close(fd[READ END]);
+    }
+
+    return 0;
+}
+```
+
+<br>
+
+### Named Pipes
+
+Named Pipes are more powerful than ordinary pipes
+
+Communication is bidirectional
+
+No parent-child relationship is necessary between the communicating processes
+
+Several processes can use the named pipe for communication
+
+Provided on both UNIX and Windows systems
