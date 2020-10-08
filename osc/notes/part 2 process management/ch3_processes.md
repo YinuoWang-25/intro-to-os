@@ -179,6 +179,87 @@ Time dependent on hardware support
 
 # Operations on Processes
 
+### System must provide mechanisms for
+
+- process creation,
+- process termination,
+- and so on as detailed next
+
+## Process Creation
+
+**Parent** process create **children** processes, which, in turn create other processes, forming a **tree** of processes
+
+Process identified and managed via **process identifier (pid)**
+
+![Process tree](assets/ch3/process_tree.png)
+
+### child process obtain resources
+
+1. directly from operation system
+2. constrained to a subset of the resources of parent
+
+### Parent execution possibilities
+
+1. parent continues to execute concurrently with its children
+2. parent waits until some or all children have terminated
+
+### address-space possibilities for the new process
+
+1. child process is a duplicate of the parent process (has the same program and data as the parent)
+2. child process has a new program loaded into it
+
+### UNIX examples
+
+fork() system call creates new process
+
+- pid for parent process is an postive integer, for child process is zero
+
+- run the same codeinstructions, has own copy of any data
+
+exec() system call used after a fork() to replace the process’ memory space with a new program
+
+- load a binary file into memory (destroyig the memory image of the program containing the exec() system call) and start its execution
+  <br>
+
+![Fork and Exec](assets/ch3/fork_exec.png)
+<br>
+
+## Process Termination
+
+Process executes last statement and then asks the operating system to delete it using the exit() system call.
+
+- Returns status data from child to parent (via wait())
+
+- Process’ resources are deallocated by operating system
+
+Parent may terminate the execution of children processes using the abort() system call. Some reasons for doing so:
+
+- Child has exceeded allocated resources
+- Task assigned to child is no longer required
+- The parent is exiting and the operating systems does not allow a child to continue if its parent terminates
+
+### Cascading termination
+
+Some operating systems do not allow child to exists if its parent has terminated. If a process terminates, then all its children must also be terminated
+
+Is initiated by the operating system
+
+The parent process may wait for termination of a child process by using the wait()system call. The call returns status information and the pid of the terminated process
+
+```c
+pid = wait(&status);
+```
+
+### zombie process
+
+no parent waiting (did not invoke wait()) process
+
+### orphan process
+
+Parent terminated without invoking wait
+
+- Assign the init process as the new parent
+
 # Interprocess Communication
 
 # Examples of IPC Systems
