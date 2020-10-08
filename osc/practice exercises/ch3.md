@@ -21,4 +21,4 @@ int main()
 }
 ```
 
-**_5_**
+<span style="color:green">Answer: </span> **_5_**
