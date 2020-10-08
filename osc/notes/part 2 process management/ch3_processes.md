@@ -431,3 +431,154 @@ Primitives are defined as:
 # Examples of IPC Systems
 
 # Communications in Client-Server Systems
+
+### Three strategies for communication in client-server systems
+
+- socket
+- remote procedure calls (RPCs)
+- pipes
+
+## Sockets
+
+A socket is defined as an endpoint for communication
+
+It's a low level form of communication
+
+Concatenation of IP address and port – a number included at start of message packet to differentiate network services on a host
+
+The socket **161.25.19.8:1625** refers to port **1625** on host **161.25.19.8**
+
+Communication consists between a pair of sockets
+
+![Communication  using sockets](assets/ch3/sockets.png)
+
+All ports below 1024 are well known, used for standard services
+
+Special IP address 127.0.0.1 (loopback) to refer to system on which process is running (itself)
+
+### Sockets in Java
+
+Three types of sockets
+
+- Connection-oriented (**TCP**)
+- Connectionless (**UDP**)
+- **MulticastSocket** class– data can be sent to multiple recipients
+  <br>
+
+#### Server
+
+```java
+public class DateServer {
+    public static void main(String[] args) {
+        try {
+            ServerSocket sock = new ServerSocket(6013);
+
+            /* now listen for connections */
+            while (true) {
+                // return a socket server can use to communicate with client
+                Socket client = sock.accept();
+
+                PrintWriter oout = new PrintWeiter(client.getOutputStream(), true);
+
+                // write the fate to the socket
+                pout.println(new java.util.Date().toString());
+
+                // close the socket and resume listeing for connection
+                client.close();
+            }
+        } catch (IOExection ioe) {
+            System.err.println(ioe);
+        }
+    }
+}
+```
+
+<br>
+
+#### Client
+
+```java
+public class DateClient {
+    public static void main(String[] args) {
+        try {
+            // make connection to server socket
+            Socket sock = new Socket("127.0.0.1", 6013);
+            InputStream in = sock.getInputStream();
+            BufferReader bin = new BufferedReader(new InputStreamReader(in));
+
+            // read the date from the socket
+            string line;
+            while ( (line = bin.readLine()) != null) {
+                System.out.println(line);
+            }
+
+            // close the socket connection
+            sock.close();
+        } catch (IOExection ioe) {
+            System.err.println(ioe);
+        }
+    }
+}
+```
+
+<br>
+
+## Remote Procedure Calls
+
+Remote procedure call (RPC) abstracts procedure calls between processes on networked systems
+
+- Again uses ports for service differentiation
+
+The semantics of RPCs allows a client to invoke a procedure on a remote host as it would invoke a procedure locally
+
+### stub
+
+client-side proxy for the actual procedure on the server
+
+A seperate stub exists for each separate remote procedure
+
+### Steps
+
+1. client invokes a remote procedure
+2. RPC syste, calls the appropriate stub, passing it the parameters provided to the remote procedure
+3. The client-side stub **locates** the server and **marshalls** the parameters
+
+   - marshalls: package the parameters into a form can be transmitted over a network
+
+4. The client-side stub transmits a message to the server using message passing
+
+5. The server-side stub receives this message, unpacks the marshalled parameters, and performs the procedure on the server
+6. return value in same technique
+   <br>
+
+### Issues
+
+1. Differences in data representation on the client and server machines
+
+   Define a machine-independent representation of data - **External Data Representation (XDL)**
+
+2. Remote communication has more failure scenarios than local
+
+   OS ensures messages can be delivered **exactly once** rather than at most once
+
+   - enter repeated messages are detected and ignored
+
+     Attach a timestamp to each messsage, the server keep history of message already processed
+
+   - remove risk that the server never receives the request
+
+     server acknowledge to the client that the RPC call was received and executed, or client keep resending
+
+3. Communication between server and client
+
+   To know which procudure to execute, RPC scheme requires a binding of client and server port, but client have no idea since they don't share memory
+
+   Two way to solve it:
+
+   1> bingding information is predetermined in fixes port address
+
+   2> rendezvous (or matchmaker) service
+
+   Require extra overhead of the initial request but more flexible
+
+   ![rpc](assets/ch3/rpc.png)
