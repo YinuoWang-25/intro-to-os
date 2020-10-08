@@ -94,6 +94,89 @@ Within the Linux kernel, all active processes are represented using a doubly lin
 
 # Process Scheduling
 
+Maximize CPU use, quickly switch processes onto CPU for time sharing
+
+**Process scheduler** selects among available processes for next execution on CPU
+
+### scheduling queues
+
+**Job queue** - set of all processes in the system
+
+**Ready queue** - set of all processes residing in main memory, ready and waiting to execute
+
+- Stored as linkedList
+
+**Device queues** - set of processes waiting for an I/O device. Each device has its own device queue <br>
+
+![The ready queue and various I/O device queues](assets/ch3/process_queue.png)
+
+### Queueing diagram
+
+![queueing diagram](assets/ch3/queueing_diagram.png)
+
+- Rectangle box - queues
+- Circle - resources that serve the queues
+- Arrows - the flow of processes
+
+A new process is initially put in the ready queue. It waits there until it is selected for execution, or **dispatched**. Once the process is allocated the CPU nad is executing, one of several events could occur:
+
+- The process could issue an I/O request and then be placed in an I/O queue.
+- The process could create a new child process and wait for the child's termination
+- The process could be removed forcibly from the CPU, as a result of an interrupt, and be put back in the ready queue.
+
+## Schedulers
+
+Carry out selection process
+
+### short-term scheduler (CPU scheduler)
+
+Select which process should be executed next and allocates CPU
+
+- Sometimes the only scheduler in a system
+- short-term scheduler is invoked frequently (milliseconds) -> must be fast
+
+### long-term scheduler (job scheduler)
+
+Select which processes should be brought into the ready queue
+
+- invoked infrequently (seconds, minutes)  (may be slow)
+- controls the degree of multiprogramming (# of processes in memory)
+
+### Processes can be described as either
+
+- I/O-bound process
+
+  - spends more time doing I/O than computations, many short CPU bursts
+
+- CPU-bound process
+  - spends more time doing computations; few very long CPU bursts
+
+Long-term scheduler strives for good process mix
+
+### Addition of Medium Term Scheduling
+
+can be added if degree of multiple programming needs to decrease
+
+#### Swapping
+
+Remove process from memory, store on disk, bring back in from disk to continue execution
+
+![Medium Term Scheduling](assets/ch3/mid_term_scheduler.png)
+
+## Context Switch
+
+When CPU switches to another process, the system must **save the state** of the old process and load the **saved state** for the new process via a **context switch**
+
+**Context** of a process represented in the PCB
+
+Context-switch time is overhead; the system does no useful work while switching
+
+- The more complex the OS and the PCB the longer the context switch
+
+Time dependent on hardware support
+
+- Some hardware provides multiple sets of registers per CPU multiple contexts loaded at once
+
 # Operations on Processes
 
 # Interprocess Communication
