@@ -262,6 +262,172 @@ Parent terminated without invoking wait
 
 # Interprocess Communication
 
+Processes within a system may be
+
+- independent - cannot affect or be affected by the other processes executing, share no data
+
+- cooperating - can affect or be affected by the other processes executing, share data
+
+### Reasons for cooperating processes
+
+1. information sharing
+2. Computation speedup
+3. Modularity
+
+### Interprocess communication (IPC)
+
+Allow cooperating processes to exchange data and information
+
+#### two models
+
+- Shared memory
+
+- Message passing
+
+![Communication Models](assets/ch3/communication_models.png)
+<br>
+
+## Shared-Memory Systems
+
+Requires communicating processes to establish a region of shared memory
+
+Resides in the address space of the process creaing the shared-memory segment
+
+Other processes need to attach the sahred-memory to their address space
+
+All agree to remove restriction on preventing other processing from accessing memory
+
+processes need to ensure not wring to the same location simultaneously
+
+### Producer-Consumer Problem
+
+Paradigm for cooperating processes, producer process produces information that is consumed by a consumer process
+
+A (shared) buffer can be filled by the producer and emptied by the consumer
+
+Must be synchronized so comsumer does not consume an item has not yet been produced (main issue)
+
+#### Two types of buffers
+
+**unbounded-buffer**
+
+places no practical limit on the size of the buffer
+
+**bounded-buffer**
+
+a fixed buffer size
+
+```c
+#define BUFFER_SIZE 10
+typedef struct {
+	. . .
+} item;
+/* circular array with two logical pointer: in and out */
+item buffer[BUFFER_SIZE];
+int in = 0;
+int out = 0;
+```
+
+**Empty buffer**: in == out
+
+**full buffer**: ((in + 1) % BUFFER_SIZE) == out
+
+#### Producer
+
+```c
+item next_produced;
+while (true) {
+	/* produce an item in next produced */
+	while (((in + 1) % BUFFER_SIZE) == out)
+		; /* do nothing */
+	buffer[in] = next_produced;
+	in = (in + 1) % BUFFER_SIZE;
+}
+```
+
+#### Consumer
+
+```c
+item next_consumed;
+while (true) {
+    while (in == out)
+		; /* do nothing */
+    next_consumed = buffer[out];
+	out = (out + 1) % BUFFER_SIZE;
+	/* consume the item in next consumed */
+}
+```
+
+## Message_Passing Systems
+
+Processes communicate with each other without resorting to shared variables
+
+Useful in distributed environment
+
+The message size is either fixed or variable
+
+If processes P and Q wish to communicate, they need to:
+
+- Establish a **communication link** between them
+- Exchange messages via send/receive
+
+### Implementation of communication link
+
+Physical
+
+- Shared memory
+- Hardware bus
+- Network
+
+Logical
+
+- Direct or indirect
+- Synchronous or asynchronous
+- Automatic or explicit buffering
+
+### Naming
+
+#### Direct Communication
+
+- Processes must name each other explicitly
+  - **send** (_P, message_) – send a message to process P
+  - **receive**(_Q, message_) – receive a message from process Q
+
+Properties of communication link
+
+- Links are established automatically
+- A link is associated with exactly one pair of communicating processes
+- Between each pair there exists exactly one link
+
+#### Indirect Communication
+
+Messages are directed and received from mailboxes (also referred to as ports)
+
+Each mailbox has a unique id
+
+Processes can communicate only if they share a mailbox
+
+- **send** (_P, message_) – send a message to process P
+- **receive**(_id, message_) – receive a message from any process. The variable id is the name of process the communication has taken place
+
+##### Properties of communication link
+
+- Link established only if processes share a common mailbox
+- A link may be associated with many processes
+- Each pair of processes may share several communication links
+  <br>
+
+##### Operations
+
+- create a new mailbox (port)
+- send and receive messages through mailbox
+- destroy a mailbox
+
+Primitives are defined as:
+
+- **send**(A, message) – send a message to mailbox A
+- **receive**(A, message) – receive a message from mailbox A
+
 # Examples of IPC Systems
 
 # Communications in Client-Server Systems
