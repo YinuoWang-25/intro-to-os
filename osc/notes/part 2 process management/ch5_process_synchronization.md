@@ -321,3 +321,178 @@ release() {
 But this solution requires busy waiting
 
 - This lock therefore called a spinlock
+  <br>
+  <br>
+
+# Semaphore
+
+Synchronization tool that provides more sophisticated ways (than Mutex locks) for process to synchronize their activities.
+
+Semaphore **S** – integer variable
+
+Can only be accessed via two indivisible (atomic) operations
+
+- wait() and signal()
+  - Originally called **P()** and **V()**
+
+Definition of the **wait() operation**
+
+```c
+wait(S) {
+	while (S <= 0)
+		; // busy wait
+	S--;
+}
+```
+
+Definition of the **signal() operation**
+
+```c
+signal(S) {
+	S++;
+}
+```
+
+## Semaphore Usage
+
+**Counting semaphore** – integer value can range over an unrestricted domain
+
+- initialize to the number of resources available
+
+**Binary semaphore** – integer value can range only between 0 and 1
+
+- Same as a mutex lock
+
+#### Can solve various synchronization problems
+
+Consider **P1** and **P2** that require **S1** to happen before **S2**
+
+Create a semaphore “synch” initialized to 0
+
+```c
+P1:
+   S1;
+   signal(synch);
+P2:
+   wait(synch);
+   S2;
+
+```
+
+Can implement a counting semaphore **S** as a binary semaphore
+<br>
+
+## Semaphore Implementation
+
+### Basic
+
+Must guarantee that no two processes can execute the **wait()** and **signal()** on the same semaphore at the same time
+
+Thus, the implementation becomes the critical section problem where the **wait** and **signal** code are placed in the critical section
+
+- Could now have busy waiting in critical section implementation
+  - But implementation code is short
+  - Little busy waiting if critical section rarely occupied
+
+Note that applications may spend lots of time in critical sections and therefore this is not a good solution
+
+### With no busy waiting
+
+With each semaphore there is an associated waiting queue
+
+Each entry in a waiting queue has two data items:
+
+1. value (of type integer)
+2. pointer to next record in the list
+   <br>
+
+#### Semaphore structure
+
+```c
+typedef struct{
+	int value;
+	struct process *list; // can be PCBs
+} semaphore;
+```
+
+#### Two operations
+
+1. **block** – place the process invoking the operation on the appropriate waiting queue
+
+2. **wakeup** – remove one of processes in the waiting queue and place it in the ready queue
+
+```c
+wait(semaphore *S) {
+   S->value--;
+   if (S->value < 0) {
+	   add this process to S->list;
+       block();
+   }
+}
+
+signal(semaphore *S) {
+   S->value++;
+   if (S->value <= 0) {
+	   remove a process P from S->list;
+       wakeup(P);
+   }
+}
+```
+
+block() and wakeup() are provided by the operating system as basic system calls
+
+SMP systems must provide alternative locking techniques - such as c**ompare_and_swap()** or spinlocks - to ensure that **wait()** and **signal()** are performed atomically
+
+We not completely eliminated busy waiting with this definition of the wait() and signal() operations. Rather, we have moved busy waiting from the entry section to the critical sections of application programs
+<br>
+
+## Deadlock and Starvation
+
+#### Deadlock
+
+two or more processes are waiting indefinitely for an event that can be caused by only one of the waiting processes
+
+Let S and Q be two semaphores initialized to 1
+
+<table>
+	<thead>
+	<tr>
+	<th>P0</th>
+	<th>P1</th>
+	</tr>
+	</thead>
+	<tbody>
+	<tr>
+	<td>wait(S);</td>
+	<td>wait(Q);</td>
+	</tr>
+	<tr>
+	<td>wait(Q);</td>
+	<td>wait(S);</td>
+	</tr>
+	</tr>
+	<tr>
+	<td>...</td>
+	<td>...</td>
+	</tr>
+	<tr>
+	<td>signal(S);</td>
+	<td>signal(Q);</td>
+	</tr>
+	<tr>
+	<td>signal(Q);</td>
+	<td>signal(S);</td>
+	</tr>
+	</tbody>
+</table>
+<br>
+
+#### Starvation – indefinite blocking
+
+A process may never be removed from the semaphore queue in which it is suspended
+
+## Priority Inversion
+
+Scheduling problem when lower-priority process holds a lock needed by higher-priority process
+
+Solved via **priority-inheritance protocol**
