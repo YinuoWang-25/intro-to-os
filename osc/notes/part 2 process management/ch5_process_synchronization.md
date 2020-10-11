@@ -157,3 +157,116 @@ Boolean flag[2]
     either flag[j] = false or turn = i
 2.  Progress requirement is satisfied
 3.  Bounded-waiting requirement is met
+
+<br>
+<br>
+
+# Synchronization Hardware
+
+Many systems provide hardware support for implementing the critical section code
+
+All solutions below based on idea of **locking**
+
+- Protecting critical regions via locks
+
+Uniprocessors – could disable interrupts
+
+- Currently running code would execute without preemption
+- Generally too inefficient on multiprocessor systems
+  - Operating systems using this not broadly scalable
+
+Modern machines provide special atomic hardware instructions
+
+- Atomic = non-interruptible
+- Either test memory word and set value
+- Or swap contents of two memory words
+
+### Solution to Critical-section Problem Using Locks
+
+![locks](assets/ch5/locks.png)
+
+### test_and_set Instruction
+
+```c
+    boolean test_and_set (boolean *target)
+    {
+        boolean rv = *target;
+        *target = TRUE;
+        return rv:
+    }
+```
+
+1. Executed atomically
+2. Returns the original value of passed parameter
+3. Set the new value of passed parameter to “TRUE”.
+
+### Solution using test_and_set()
+
+Shared Boolean variable lock, initialized to FALSE
+
+```c
+    do {
+		while (test_and_set(&lock))
+            ; /* do nothing */
+                /* critical section */
+        lock = false;
+                /* remainder section */
+    } while (true);
+```
+
+### compare_and_swap Instruction
+
+```c
+    int compare _and_swap(int *value, int expected, int new_value) {
+        int temp = *value;
+
+        if (*value == expected)
+            *value = new_value;
+        return temp;
+    }
+```
+
+1. Executed atomically
+2. Returns the original value of passed parameter “value”
+3. Set the variable “value” the value of the passed parameter “new_value” but only if “value” ==“expected”. That is, the swap takes place only under this condition.
+
+### Solution using compare_and_swap
+
+Shared integer “lock” initialized to 0;
+
+```c
+    do {
+		while (compare_and_swap(&lock, 0, 1) != 0)
+            ; /* do nothing */
+
+            /* critical section */
+        lock = 0;
+
+            /* remainder section */
+    } while (true);
+```
+
+### Bounded-waiting Mutual Exclusion with test_and_set
+
+```c
+do {
+	waiting[i] = true;
+	key = true;
+	while (waiting[i] && key)
+    	key = test_and_set(&lock);
+    waiting[i] = false;
+
+    	/* critical section */
+
+    j = (i + 1) % n;
+    while ((j != i) && !waiting[j])
+      	j = (j + 1) % n;
+
+    if (j == i)
+        lock = false;
+   else
+        waiting[j] = false;
+
+        /* remainder section */
+} while (true);
+```
