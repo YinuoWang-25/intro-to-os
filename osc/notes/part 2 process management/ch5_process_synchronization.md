@@ -169,10 +169,18 @@ All solutions below based on idea of **locking**
 
 - Protecting critical regions via locks
 
-Uniprocessors – could disable interrupts
+#### Solution to Critical-section Problem Using Locks
+
+![locks](assets/ch5/locks.png)
+<br>
+
+### Uniprocessors
+
+could disable interrupts
 
 - Currently running code would execute without preemption
 - Generally too inefficient on multiprocessor systems
+  - Message need to pass to every processor
   - Operating systems using this not broadly scalable
 
 Modern machines provide special atomic hardware instructions
@@ -180,10 +188,6 @@ Modern machines provide special atomic hardware instructions
 - Atomic = non-interruptible
 - Either test memory word and set value
 - Or swap contents of two memory words
-
-### Solution to Critical-section Problem Using Locks
-
-![locks](assets/ch5/locks.png)
 
 ### test_and_set Instruction
 
@@ -197,6 +201,7 @@ Modern machines provide special atomic hardware instructions
 ```
 
 1. Executed atomically
+   - two _test_and_set()_ instruction are executed simultaneously (each on a different CPU) will be executed sequentially in some arbitrary order
 2. Returns the original value of passed parameter
 3. Set the new value of passed parameter to “TRUE”.
 
