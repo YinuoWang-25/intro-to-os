@@ -275,3 +275,49 @@ do {
         /* remainder section */
 } while (true);
 ```
+
+<br>
+<br>
+
+# Mutex Locks
+
+Previous solutions are complicated and generally inaccessible to application programmers
+
+OS designers build software tools to solve critical section problem
+
+Simplest is mutex lock by protect a critical section by first acquire() a lock then release() the lock
+
+### Solution to critical-section problem using mutex locks
+
+```c
+do {
+	acquire lock
+		critical section
+	release lock
+		remainder section
+} while (true);
+```
+
+Calls to acquire() and release() must be atomic
+
+- Usually implemented via hardware atomic instructions
+
+### acquire() and release()
+
+```c
+acquire() {
+	while (!available)
+        ; /* busy wait */
+    available = false;;
+}
+```
+
+```c
+release() {
+	available = true;
+}
+```
+
+But this solution requires busy waiting
+
+- This lock therefore called a spinlock
