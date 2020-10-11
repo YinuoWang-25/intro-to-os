@@ -58,3 +58,20 @@ happens when a context switch occurs if the new context is already
 loaded into one of the register sets. What happens if the new context is
 in memory rather than in a register set and all the register sets are in
 use?
+
+**Answer** TBD
+
+<br>
+
+**3.5** When a process creates a new process using the fork() operation, which
+of the following state is shared between the parent process and the child
+process?
+
+- a. Stack
+- b. Heap
+- c. Shared memory segments
+
+**Answer**:
+Only the shared memory segments are shared between the parent
+process and the newly forked child process. Copies of the stack and
+the heap are made for the newly created process.
