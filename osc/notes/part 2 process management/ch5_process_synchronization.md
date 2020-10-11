@@ -79,6 +79,7 @@ S4: producer execute counter = register1 (counter = 6)
 
 S5: consumer execute counter = register2 (counter = 4)
 <br>
+<br>
 
 # The Critical-Section Problem
 
@@ -126,3 +127,33 @@ Two approaches depending on if kernel is **preemptive** or **non-preemptive**
 **Non-preemptive** – runs until exits kernel mode, blocks, or voluntarily yields CPU
 
 - Essentially free of race conditions in kernel mode
+
+<br>
+<br>
+
+# Peterson’s Solution
+
+Good algorithmic description of solving the problem
+
+Two process solution
+
+#### The two processes share two variables
+
+```c
+int turn;
+Boolean flag[2]
+```
+
+**turn** - whose turn to enter the critical section
+
+**flag array** - if a process is ready to enter the critical section. flag[i] = true implies that process Pi is ready
+
+![Peterson’s Algorithm](assets/ch5/peterson_algo.png)
+
+### Provable that the three CS requirement are met
+
+1.  Mutual exclusion is preserved
+    Pi enters CS only if:
+    either flag[j] = false or turn = i
+2.  Progress requirement is satisfied
+3.  Bounded-waiting requirement is met
