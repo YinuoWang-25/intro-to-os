@@ -68,7 +68,6 @@ void *simulate_student(void* student_id) {
 
         // ask to begin check
         pthread_mutex_lock( &mutex_thread );
-
         if (waiting_student_num < WAITING_CHAIR_NUM) {
             // student has a seat at waiting chairs
             chairs[next_seating_position] = id;
@@ -94,17 +93,16 @@ void *simulate_ta(void *param) {
     while (1) {
         if ( waiting_student_num > 0 ) {
             is_ta_sleeping = 0;
-            sem_post( &sem_waiting_chairs );
+            sem_post( &sem_waiting_chairs);
 
             pthread_mutex_lock( &mutex_thread );
-
             chairs[waiting_student_num]=0;
 			waiting_student_num--;
 			next_teaching_position = ( next_teaching_position + 1 ) % WAITING_CHAIR_NUM;
             printf( "student %d get in TA room,  Students waiting = %d.\n", chairs[next_teaching_position], waiting_student_num);
 			pthread_mutex_unlock( &mutex_thread );
 
-            //TA helping student.
+            //TA helping student
             int help_time = rand_sleep();
 			printf( "Helped student %d for %d seconds.\n", chairs[next_teaching_position], help_time );
             sem_post( &sem_ta );
@@ -112,7 +110,6 @@ void *simulate_ta(void *param) {
 			if ( is_ta_sleeping == 0 ) {
 				printf( "No students waiting. Sleeping.\n" );
 				is_ta_sleeping = 1;
-
 			}
         }
     }
