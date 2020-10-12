@@ -496,3 +496,178 @@ A process may never be removed from the semaphore queue in which it is suspended
 Scheduling problem when lower-priority process holds a lock needed by higher-priority process
 
 Solved via **priority-inheritance protocol**
+<br>
+<br>
+
+# Classical Problems of Synchronization
+
+Classical problems used to test newly-proposed synchronization schemes
+
+- Bounded-Buffer Problem
+- Readers and Writers Problem
+- Dining-Philosophers Problem
+
+<br>
+
+## Bounded-Buffer Problem
+
+n buffers, each can hold one item
+
+Semaphore mutex initialized to the value 1
+
+Semaphore full initialized to the value 0
+
+Semaphore empty initialized to the value n
+
+### producer process
+
+```c
+    do {
+           ...
+		/* produce an item in next_produced */
+           ...
+        wait(empty);
+        wait(mutex);
+           ...
+		/* add next produced to the buffer */
+           ...
+        signal(mutex);
+        signal(full);
+     } while (true);
+```
+
+### consumer process
+
+```c
+    do {
+        wait(full);
+        wait(mutex);
+           ...
+		/* remove an item from buffer to next_consumed */
+           ...
+        signal(mutex);
+        signal(empty);
+           ...
+		/* consume the item in next consumed */
+           ...
+	} while (true);
+```
+
+<br>
+
+## Readers-Writers Problem
+
+A data set is shared among a number of concurrent processes
+
+- Readers – only read the data set; they do not perform any updates
+
+- Writers – can both read and write
+
+Problem – allow multiple readers to read at the same time
+
+- Only one single writer can access the shared data at the same time
+
+### Readers-Writers Problem Variations
+
+Both may have starvation leading to even more variations
+
+Problem is solved on some systems by kernel providing reader-writer locks
+
+#### first reader-writers problem
+
+no reader be kept waiting unless a writer has already obtained perission to use the shared object
+
+#### second reader-writers problem
+
+once a writer is ready, what writer perform its write as soon as possible
+
+### solution to first reader-writers problem
+
+Shared Data
+
+```c
+semaphore rw_mutex = 1;
+semaphore mutex = 1; // ensure mutual exclusion when the variable read_count is updated
+int read_count = 0;
+```
+
+#### writer process
+
+```c
+    do {
+		wait(rw_mutex);
+            ...
+		/* writing is performed */
+            ...
+        signal(rw_mutex);
+    } while (true);
+```
+
+#### reader process
+
+```c
+    do {
+		wait(mutex);
+		read_count++;
+		if (read_count == 1)
+            wait(rw_mutex);
+        signal(mutex);
+            ...
+		/* reading is performed */
+               ...
+        wait(mutex);
+		read count--;
+		if (read_count == 0)
+           signal(rw_mutex);
+        signal(mutex);
+    } while (true);
+```
+
+Reader - writer locks are most useful in the following situations:
+
+1. It is easy tp identify which processes only read shared data and which processes only write sahred data
+
+2. Have more readers than writers
+
+<br>
+
+## Dining-Philosophers Problem
+
+![dining_philosophers](assets/ch5/dining_philosophers.png)
+
+### In the case of 5 philosophers
+
+Shared data
+
+- Bowl of rice (data set)
+- Semaphore chopstick [5] initialized to 1
+
+#### The structure of Philosopher i:
+
+```c
+do {
+    wait (chopstick[i] );
+	wait (chopStick[ (i + 1) % 5] );
+		...
+	/* eat for a while */
+
+	signal (chopstick[i] );
+	signal (chopstick[ (i + 1) % 5] );
+		...
+    /* think for a while */
+
+} while (true);
+```
+
+### Deadlock handling
+
+1. Allow at most 4 philosophers to be sitting simultaneously at the table.
+
+2. Allow a philosopher to pick up the forks only if both are available (picking must be done in a critical section.
+
+3. Use an asymmetric solution -- an odd-numbered philosopher picks up first the left chopstick and then the right chopstick. Even-numbered philosopher picks up first the right chopstick and then the left chopstick.
+
+<br>
+<br>
+
+# Monitors
