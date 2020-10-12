@@ -671,3 +671,201 @@ do {
 <br>
 
 # Monitors
+
+A high-level abstraction that provides a convenient and effective mechanism for process synchronization
+
+## Monitor Usage
+
+**_Abstract data type_**, internal variables only accessible by code within the procedure
+
+Only one process may be active within the monitor at a time
+
+But not powerful enough to model some synchronization schemes
+
+```c
+monitor monitor-name
+{
+	// shared variable declarations
+	procedure P1 (…) { … }
+		.
+		.
+		.
+	procedure Pn (…) {……}
+
+    Initialization code (…) { … }
+}
+```
+
+![monitor](assets/ch5/monitor.png)
+<br>
+
+### Condition Variables
+
+Two operations are allowed on a condition variable:
+**x.wait()** – a process that invokes the operation is suspended until x.signal()
+
+**x.signal()** – resumes one of processes (if any) that invoked x.wait()
+If no x.wait() on the variable, then it has no effect on the variable
+
+![condition](assets/ch5/condition.png)
+
+### Condition Variables Choices
+
+If process P invokes x.signal(), and process Q is suspended in x.wait(), what should happen next?
+
+- Both Q and P cannot execute in paralle. If Q is resumed, then P must wait
+
+#### Options
+
+1. **Signal and wait** - P waits until Q either leaves the monitor or it waits for another condition
+
+2. **Signal and continue** – Q waits until P either leaves the monitor or it waits for another condition
+
+Both have pros and cons – language implementer can decide
+
+Monitors implemented in Concurrent Pascal compromise
+
+- P executing signal immediately leaves the monitor, Q is resumed
+
+<br>
+
+## Monitor Solution to Dining Philosophers
+
+### Restriction
+
+A philosopher may pick up her chopsticks only if both of them are available.
+
+### state of philosophers
+
+```c
+monitor DiningPhilosophers
+{
+	enum { THINKING; HUNGRY, EATING) state [5] ;
+	condition self [5];
+
+	void pickup (int i) {
+	    state[i] = HUNGRY;
+	    test(i);
+	    if (state[i] != EATING) self[i].wait;
+    }
+
+    void putdown (int i) {
+	    state[i] = THINKING;
+	    test((i + 4) % 5);
+	    test((i + 1) % 5);
+    }
+
+   	void test (int i) {
+	    if ((state[(i + 4) % 5] != EATING) &&
+	     (state[i] == HUNGRY) &&
+	     (state[(i + 1) % 5] != EATING) ) {
+	        state[i] = EATING ;
+		    self[i].signal () ;
+	    }
+    }
+
+    initialization_code() {
+	    for (int i = 0; i < 5; i++)
+	       state[i] = THINKING;
+	}
+}
+```
+
+Each philosopher i invokes the operations **pickup()** and **putdown()** in the following sequence:
+
+```c
+    DiningPhilosophers.pickup(i);
+			...
+            eat
+			...
+    DiningPhilosophers.putdown(i);
+```
+
+No deadlock, but starvation is possible
+
+<br>
+
+## Monitor Implementation Using Semaphores
+
+### Variables
+
+```c
+	semaphore mutex;  // (initially  = 1)
+	semaphore next;   // (initially  = 0)
+	int next_count = 0;
+```
+
+introduce next because: a signaling process must wait until the resumed process either leaves or wait
+
+Each procedure F will be replaced by
+
+```c
+	wait(mutex);
+		…
+        body of F;
+		…
+	if (next_count > 0)
+		signal(next)
+	else
+		signal(mutex);
+```
+
+Mutual exclusion within a monitor is ensured
+
+### Condition Variables
+
+For each condition variable x, we have:
+
+```c
+	semaphore x_sem; // (initially  = 0)
+	int x_count = 0;
+```
+
+The operation x.wait can be implemented as:
+
+```c
+	x_count++;
+	if (next_count > 0)
+		signal(next);
+	else
+		signal(mutex);
+	wait(x_sem);
+	x_count--;
+```
+
+The operation x.signal can be implemented as:
+
+```c
+	if (x_count > 0) {
+		next_count++;
+		signal(x_sem);
+		wait(next);
+		next_count--;
+	}
+```
+
+## Resuming Processes within a Monitor
+
+If several processes queued on condition x, and x.signal() executed, which should be resumed?
+
+FCFS frequently not adequate
+
+**conditional-wait** construct of the form x.wait(c)
+
+- Where c is priority number
+- Process with lowest number (highest priority) is scheduled next
+
+### Single Resource allocation
+
+Allocate a single resource among competing processes using priority numbers that specify the maximum time a process plans to use the resource
+
+```c
+    R.acquire(t);
+        ...
+    access the resurce;
+        ...
+
+    R.release;
+```
+
+Where R is an instance of type ResourceAllocator
