@@ -1,3 +1,1 @@
-FIFO queue for all waiting students
-
-counter semaphore to see whether student can wait or need to go back later
+# Project 1 The Sleeping Teach Assistant Problem
