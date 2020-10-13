@@ -94,7 +94,7 @@ The PCB is created and initialized when the process is initially created.
 
 Certain fields of the PCB may changed when process state changes.
 
-- virtual/physical memory
+- virtual / physical memory
 
 Some fields can change often, like the **program counter**
 
@@ -113,3 +113,27 @@ If a process is interrupted by the operating system - perhaps to give another pr
 Each time the operating system switches between processes, we call this a **context switch**
 
 # Context Switch
+
+A mechanism used by the operating system to switch from the context of one process to the context of another process.
+
+It is very **EXPENSIVE** so we want to limit how often we context switch
+
+## Direct costs
+
+number of CPU cycles required to load and store a new PCB to and from memory
+
+## Indirect costs
+
+When a process is running on the CPU a lot of its data is stored in the processor cache.
+
+Accessing data from cache is faster than accessing from memory.
+
+When we data we need is present in the cache, we say that the cache is **hot**. When a process gets swapped out, all of it's data is cleared from cache. The next time it is swapped in, the cache is **cold**.
+
+![Context Switch](assets/P2L1/context_switch.png)
+
+# Process Life Cycle: States
+
+![Process State](assets/P2L1/process_state.png)
+
+# Process Life Cycle: Creation
