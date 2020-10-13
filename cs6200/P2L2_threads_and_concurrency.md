@@ -2,7 +2,7 @@
 
 Threads represent multiple independent execution contexts within the same address space
 
-![Process vs Thread](assets/P2L2/process_vs_thread.png)
+![Process vs Thread](assets/P2L2/process_thread.png)
 
 A multithreaded process will have a more complex process control block structure, as these thread specific execution contexts needs to be incorporated.
 
