@@ -20,7 +20,7 @@ Synonymous with **task** or **job**
 
 # What is Process
 
-![What's process](assets/p2l1/process.png)
+![What's process](assets/P2L1/process.png)
 
 Operating system manages the hardware on behalf of **applications**
 
@@ -32,7 +32,7 @@ If the same program is launched more than once, multiple processes will be creat
 
 # What Does a Process Look Like?
 
-![What does process look like](assets/p2l1/process_detail.png)
+![What does process look like](assets/P2L1/process_detail.png)
 
 A process encapsulates all of the state of a running application. Every element of the process state has to be uniquely identified by its address.
 
@@ -52,7 +52,7 @@ Different types of process state in an address space
 
 # Process Address Space
 
-![Address Space](assets/p2l1/address_space.png)
+![Address Space](assets/P2L1/address_space.png)
 
 ## Virtual Addresses
 

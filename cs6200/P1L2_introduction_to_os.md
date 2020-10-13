@@ -23,7 +23,7 @@ the underlying hardware systems
 
 # What is OS?
 
-![What's os](assets/p1l2/os.png)
+![What's os](assets/P1L2/os.png)
 
 Let's first look at the hardware of a computing system. This computing system consists of:
 
@@ -139,7 +139,7 @@ Understanding the common case - which may change in different contexts - helps t
 
 # OS Protection Boundary
 
-![boundary protection](assets/p1l2/boundary_protection.png)
+![boundary protection](assets/P1L2/boundary_protection.png)
 
 Computer systems distinguish between at least two modes of execution:
 
@@ -172,7 +172,7 @@ Operating systems also support signals, which is a way for the operating system 
 
 # System Call Flow
 
-![system call](assets/p1l2/system_call1.png)
+![system call](assets/P1L2/system_call1.png)
 
 Begin within the context of a currently executing process. The process needs access to some hardware, and thus needs to make a system call. The application makes the system call (potentially passing arguments), and control is passed to the operating system, which accesses the hardware. Execution control (as well as any necessary data) is passed back from the operating system to the application process.
 
@@ -182,7 +182,7 @@ Not necessarily a cheap operation to make a system call!
 
 Arguments to system call can either be passed directly from process to operating system, or they can be passed indirectly by specifying their address
 
-![system call](assets/p1l2/system_call2.png)
+![system call](assets/P1L2/system_call2.png)
 
 In synchronous mode, the process waits until the system call completes. Asynchronous modes exist also.
 
@@ -223,16 +223,16 @@ In addition, some services are even higher level abstractions, not having a dire
 
 ### Linux VS Windoes
 
-![system calls](assets/p1l2/system_calls.png)
+![system calls](assets/P1L2/system_calls.png)
 
 # Monolithic OS
 
-![Monolithic OS](assets/p1l2/mono_os1.png)
-![Monolithic OS](assets/p1l2/mono_os2.png)
+![Monolithic OS](assets/P1L2/mono_os1.png)
+![Monolithic OS](assets/P1L2/mono_os2.png)
 
 # Modular OS
 
-![Modular OS](assets/p1l2/modular_os.png)
+![Modular OS](assets/P1L2/modular_os.png)
 
 This type of operating system has a basic set of services and APIs that come with it.
 
@@ -250,10 +250,10 @@ Everything else (including file systems and disk drivers) will run outside of th
 
 This setup requires lots of interprocess communication (IPC), as the traditional operating system components run within application processes.
 
-![Microkernel](assets/p1l2/microkernel.png)
+![Microkernel](assets/P1L2/microkernel.png)
 
 # Linux and Mac OS Architecture
 
-![linux architecture](assets/p1l2/linux-arch.png)
+![linux architecture](assets/P1L2/linux-arch.png)
 
-![mac architecture](assets/p1l2/mac-arch.png)
+![mac architecture](assets/P1L2/mac-arch.png)
