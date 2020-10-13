@@ -59,3 +59,5 @@ Different types of process state in an address space
 Potential range of addresses in process address space go from V_0 to V_max
 
 Memory management hardware and components of the operating system maintain a mapping (**Page Table**) between virtual memory addresses and physical memory addresses. By using this mapping, we can _decouple_ the layout of the data in the virtual address space from the layout of the data in physical memory.
+
+# Address Space and Memory Management
