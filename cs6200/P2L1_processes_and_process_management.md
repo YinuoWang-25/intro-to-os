@@ -157,3 +157,69 @@ For **creating** a new program, you have to call fork to get a new process, and 
 ![Process Creation](assets/P2L1/process_creation.png)
 
 # Role of the CPU scheduler
+
+The CPU scheduler manages how processes use the CPU resources.
+
+It determines which process will use the CPU next, and how long that process has to run.
+
+![CPU scheduler](assets/P2L1/cpu_scheduler.png)
+
+Since CPU resources are precious, the operating system needs to make sure that it spends the bulk of its time running processes, NOT making scheduling decisions.
+
+# Length of Process
+
+We can calculate a measure of CPU efficiency by looking at the amount of time spent executing a process divided by the total amount of computation time.
+
+For example, if the number of blocks of time spent scheduling equals the number of blocks spent executing, and the length of an execution block is the same as the length of a scheduling block, then the CPU efficiency is only 50%!
+
+On the other hand, if the same number of blocks are spent scheduling as are spent executing, but the process runs for 10 times the length of the scheduling block, the efficiency increases to over 90%!
+
+![process length](assets/P2L1/process_length.png)
+
+The amount of time that has been allocated to a process that is scheduled to run is known as a timeslice.
+
+![timeslice](assets/P2L1/timeslice.png)
+
+When designing a scheduler, we have to make important design decisions:
+
+- What are appropriate timeslice values?
+
+- What criteria is used to decide which process is the next to run?
+
+# What about I/O
+
+When a process makes an I/O request, the operating system will deliver that request, and move the process to the I/O queue for that particular I/O device. The process will remain in the queue until the request is responded to, after which the process will move back to a ready state (or might immediately be scheduled on the CPU).
+
+Processes can end up on the ready queue in a few ways.
+
+![IO](assets/P2L1/io.png)
+
+# Inter Process Communication
+
+- transfer data/information between address spaces
+
+- maintaining protection and isolation
+
+- be flexible and performant
+
+![ipc](assets/P2L1/ipc.png)
+
+## Message Passing IPC
+
+Operating system establishes a communication channel - like a shared buffer, for instance - and the processes use that to communicate. One process can write/send through the channel, while the other can read/recv from the channel.
+
+Benefits of this approach is that the operating system will manage this channel, and already has the system calls in place for write/send and read/recv.
+
+Downsides are overhead. Every single piece of information to be transmitted needs to be copied from address space of sending process into memory allocated to the kernel, and then finally into the address space of the receiving process.
+
+![Message Passing IPC](assets/P2L1/message_passing_ipc.png)
+
+## Shared Memory IPC
+
+The operating system establishes a shared memory channel, and then maps it into the address space of both processes. The processes are then allowed to directly read/write to this memory the same way they can read/write from any memory allocated them in their address space.
+
+The operating system is completely out of the picture in this case, which is the main benefit! No overhead to incur.
+
+The disadvantage to this approach is that because the OS is out of the way, a lot of the APIs that were taken for granted in message passing IPC have to be reimplemented.
+
+![Shared Memory IPC](assets/P2L1/shared_memory_ipc.png)
