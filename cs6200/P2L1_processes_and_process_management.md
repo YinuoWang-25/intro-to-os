@@ -94,7 +94,7 @@ The PCB is created and initialized when the process is initially created.
 
 Certain fields of the PCB may changed when process state changes.
 
-- virtual/physical memory
+- virtual / physical memory
 
 Some fields can change often, like the **program counter**
 
@@ -113,3 +113,47 @@ If a process is interrupted by the operating system - perhaps to give another pr
 Each time the operating system switches between processes, we call this a **context switch**
 
 # Context Switch
+
+A mechanism used by the operating system to switch from the context of one process to the context of another process.
+
+It is very **EXPENSIVE** so we want to limit how often we context switch
+
+## Direct costs
+
+number of CPU cycles required to load and store a new PCB to and from memory
+
+## Indirect costs
+
+When a process is running on the CPU a lot of its data is stored in the processor cache.
+
+Accessing data from cache is faster than accessing from memory.
+
+When we data we need is present in the cache, we say that the cache is **hot**. When a process gets swapped out, all of it's data is cleared from cache. The next time it is swapped in, the cache is **cold**.
+
+![Context Switch](assets/P2L1/context_switch.png)
+
+# Process Life Cycle: States
+
+![Process State](assets/P2L1/process_state.png)
+
+# Process Life Cycle: Creation
+
+In operation systems, a process can create one or more child processes.
+
+Once the operating system is done booting, it will create some root processes. These processes have privileged access.
+
+Most operating systems support two mechanisms for process creation:
+
+- fork
+
+- exec
+
+With fork, the operating system will create a new PCB for the child, and then will copy the exact same values from the parent PCB into the child PCB. The result is that both processes will continue executing with the exact same state at the instruction immediately following the fork (they have the same program counter).
+
+With exec, the operating system will take a PCB (created via fork), but will not leave the values to match those of the parents. Instead operating system loads a new program, and the child's PCB will now point to values that describe this new program. The program counter of the child will now point to the first instruction of the new program.
+
+For **creating** a new program, you have to call fork to get a new process, and then call exec to load that program's information into the child's PCB.
+
+![Process Creation](assets/P2L1/process_creation.png)
+
+# Role of the CPU scheduler
