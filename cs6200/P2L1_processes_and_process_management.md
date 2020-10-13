@@ -61,3 +61,55 @@ Potential range of addresses in process address space go from V_0 to V_max
 Memory management hardware and components of the operating system maintain a mapping (**Page Table**) between virtual memory addresses and physical memory addresses. By using this mapping, we can _decouple_ the layout of the data in the virtual address space from the layout of the data in physical memory.
 
 # Address Space and Memory Management
+
+We may not have enough physical memory to store all a process's state even if we do need it. To deal with this overflow, the operating system decides dynamically which portion of the process's address space will live in physical memory and which portion will be swapped temporarily to disk.
+
+Process share physical addresses sometimes. But operating system must check the validity of memory accesses to make sure that, say, process A isn't trying to write to memory mapped to by process B.
+
+# Process Execution State
+
+### program counter
+
+Current executing line within a program
+
+### CPU registers
+
+The program counter as well as other data related to a current process's state are stored on CPU registers.
+
+### Stack pointer
+
+The top of process's stack
+
+## process control block
+
+To maintain all of this useful information for every single process
+
+# Process Control Block
+
+A process control block is a data structure that the operating system maintains for every process that it manages.
+
+![Process Control Block](assets/P2L1/pcb.png)
+
+The PCB is created and initialized when the process is initially created.
+
+Certain fields of the PCB may changed when process state changes.
+
+- virtual/physical memory
+
+Some fields can change often, like the **program counter**
+
+- Stored within CPU registers (no update PCB every time)
+
+- Save it to the PCB when the process is no longer running
+
+# How is PCB Used
+
+![How is pcb used](assets/P2L1/how_pcb_used.png)
+
+PCBs are stored in memory on behalf of a process by the operating system until it comes time for the process to start/resume execution. At that point, the process's PCB is loaded from memory into CPU registers, at which point instruction execution can begin.
+
+If a process is interrupted by the operating system - perhaps to give another process some CPU time - the operating system must pull the PCB out of CPU registers and save it back into memory.
+
+Each time the operating system switches between processes, we call this a **context switch**
+
+# Context Switch
