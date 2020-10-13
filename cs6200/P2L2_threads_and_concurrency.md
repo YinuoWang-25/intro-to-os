@@ -2,7 +2,7 @@
 
 Threads represent multiple independent execution contexts within the same address space
 
-![Process vs Thread](assets/P2L2/process_vs_thread.png)
+![Process vs Thread](assets/P2L2/process_thread.png)
 
 A multithreaded process will have a more complex process control block structure, as these thread specific execution contexts needs to be incorporated.
 
@@ -29,3 +29,19 @@ As a result, a multithreaded application is more likely to fit in memory, and no
 As well, passing data between processes - inter process communication (IPC) - is more costly than inter thread communication, which consists primarily of reading/writing shared variables.
 
 # Benefits of Multithreading: Single CPU
+
+Consider the situation where a single thread makes a disk request. The disk needs some amount of time to respond to the request, during which the thread cannot do anything useful. If the time that the thread spends waiting greatly exceeds the time it takes to context switch (twice), then it makes sense to switch over to a new thread.
+
+Now, this is true for both processes and threads. One of the most time consuming parts of context switching for processes is setting up the virtual to physical mappings. Thankfully, when we are context switching with threads, we are using the same mappings because we are within the same process. This brings down the total time to context switch, which brings up the number of opportunities in which switching threads can be useful.
+
+![Why Thread](assets/P2L2/thread_single_cpu.png)
+
+# Benefits of Multithreading: Apps and OS Code
+
+By multithreading the operating system kernel, we allow the operating system to support multiple execution contexts, which is particularly useful when we do have multiple CPUs, which allows the execution contexts to operate concurrently. The OS threads may run on behalf of different application or OS-level services like daemons and device drivers.
+
+![os](assets/P2L2/os.png)
+
+<br>
+
+# Basic Thread Mechanisms
