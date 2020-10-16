@@ -45,3 +45,31 @@ By multithreading the operating system kernel, we allow the operating system to 
 <br>
 
 # Basic Thread Mechanisms
+
+![what do we need to support threads](assets/P2L2/support_threads.png)
+
+When processes run concurrently, they operate within their own address space
+
+Threads share the same virtual to physical address mappings, since they share the same address space. Naturally, this can introduce some problems. For example, one thread can try to read the data while another modifies it, which can lead to inconsistencies. This is an example of a data race problem.
+
+![problems](assets/P2L2/problems.png)
+
+## mutual exclusion
+
+A mechanism that allows threads to operate on data in an exclusive manner
+
+Only one thread at a time is granted access to some data. The remaining threads must wait their turn
+
+We accomplish mutual exclusion through the use of a **mutex**
+
+![mutex](assets/P2L2/mutex.png)
+
+## Condition Variable
+
+Inter thread communication
+
+A thread can wait on another thread, and to be able to exactly specify what condition the thread is waiting on
+
+Both _mutexes_ and _condition variables_ are examples of **synchronization mechanisms**
+
+# Thread Creation
