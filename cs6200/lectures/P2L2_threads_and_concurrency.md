@@ -73,3 +73,31 @@ A thread can wait on another thread, and to be able to exactly specify what cond
 Both _mutexes_ and _condition variables_ are examples of **synchronization mechanisms**
 
 # Thread Creation
+
+We need some data structure to represent a thread
+
+- Thread ID
+- Program counter
+- Stack pointer
+- Register values
+- Stack
+- Other attributes
+
+## fork
+
+- not the UNIX fork call
+- takes two arguments
+  - proc (run when the thread is created)
+  - args (pass to proc)
+
+## join
+
+- Return its result or communicate its status to the forking thread
+
+- Ensure that a forking thread doesn't not exit before its forked thread completes work (as child threads exit when parent threads do)
+
+- When **join** returns, the child thread exits the system and all resources associated with it are deallocated
+
+![thread creation](assets/P2L2/thread_creation.png)
+
+# Thread Creation Example
