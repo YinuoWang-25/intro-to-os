@@ -101,3 +101,30 @@ We need some data structure to represent a thread
 ![thread creation](assets/P2L2/thread_creation.png)
 
 # Thread Creation Example
+
+## data race
+
+As we do not know which thread will run at which time in this example, we cannot be certain of the ordering of the elements in the list
+
+![thread creation example](assets/P2L2/thread_creation_example.png)
+
+# Mutexes
+
+Many steps required to add an element to the list. Expected behavior is as following:
+
+![update list expected](assets/P2L2/update_list_expected.png)
+
+But there might be problem as data race. One example:
+
+1. Thread A reads list and list.p_next
+2. Thread B reads list and list.p_next
+3. Thread A sets e.pointer to list.p_next
+4. Thread B sets e.pointer to list.p_next
+5. Thread A sets list.p_next to e
+6. Thread B sets list.p_next to e
+
+So one thread add successfully but another lost
+
+![update list problem](assets/P2L2/update_list_problem.png)
+
+# Mutual Exclusion
