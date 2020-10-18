@@ -1,18 +1,18 @@
 # PThread Creation
 
-To represent threads, pthreads supports a **pthread_t** data type
+**pthread_t** - data type to represent threads
 
-Threads are created by the following function
+**pthread_attr_t** - set various options on the thread during creation
+
+## Create Thread
 
 ```c
 int pthread_create(pthread_t *thread, const pthread_attr_t *attr, void * (*start_routine)(void *), void *arg);
 ```
 
-This function takes as arguments a pointer to a **pthread_t**, a well as a start routine and an argument to pass to that start routine.
+return value is whether the creation was a success or a failure.
 
-It also takes an argument which is of the type **pthread_attr_t** which is a data structure that can be used to set various options on the thread during creation.
-
-**pthread_create** returns an int which indicates whether the creation was a success or a failure.
+## Thread Join
 
 Child threads can be joined back to a parent thread with
 
@@ -20,9 +20,11 @@ Child threads can be joined back to a parent thread with
 int pthread_join(pthread_t thread, void **status);
 ```
 
-This function takes the thread to be joined as well as a status variable. The status variable will capture all of the important return information that is returned from the thread to be joined.
+return value is whether the join was a success or a failure.
 
-**pthread_join** returns an **int** which indicates whether the join was a success or a failure.
+## Thread Attribute
+
+### Data Structure
 
 The **pthread_attr_t** data structure allows us to define features of the new thread we are creating, such as:
 
@@ -33,21 +35,36 @@ The **pthread_attr_t** data structure allows us to define features of the new th
 - inheritance
 - joinable
 
+### Pass As Null
+
 If **NULL** is passed in the place of a **pthread_attr_t**, pthreads falls back to default behavior for the new thread.
 
-There are several calls that allow us to operate on a **pthread_attr_t**
+### Operations
+
+#### allocate and deallocate space
 
 ```c
 int pthread_attr_init(pthread_attr_t *attr);
 int pthread_attr_destroy(pthread_attr_t *attr);
+```
+
+#### set/get various attributes of that structure
+
+```c
 pthread_attr_{set/get}{attribute};
 ```
 
-These functions can be used, respectively, to allocate space for a **pthread_attr_t**, to deallocate space for that **pthread_attr_t** and to set/get various attributes of that structure.
+## Detachable Threads
 
-One mechanism not considered by Birrell is detachable threads. In pthreads, the default behavior for thread creation is joinable threads. For a joinable (child) thread, the parent will not terminate until the child has completed their execution. If the parent thread exits early, the child threads may turn into zombies.
+In pthreads, the default behavior for thread creation is joinable threads. For a joinable (child) thread, the parent will not terminate until the child has completed their execution.
 
-In pthreads, it is possible to allow child threads to become detached. Detached threads cannot be joined back into the parent, allowing the parent to exit early and the child threads to continue their execution.
+### Zombies Thread
+
+Parent thread exits early
+
+### Detached Thread
+
+Detached threads cannot be joined back into the parent, allowing the parent to exit early and the child threads to continue their execution.
 
 To detach threads, use
 
