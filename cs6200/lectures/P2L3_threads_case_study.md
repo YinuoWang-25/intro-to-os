@@ -72,6 +72,7 @@ Parent thread exits early
 ### Detached Thread
 
 ![Thread Attributes](assets/P2L3/detach_2.png)
+
 Detached threads cannot be joined back into the parent, allowing the parent to exit early and the child threads to continue their execution.
 
 To detach threads, use
@@ -94,17 +95,77 @@ Since parent threads do not need to wait around until child threads complete, th
 
 # Compiling PThreads
 
+![Thread Attributes](assets/P2L3/compiling.png)
+
 # PThread Creation Example 1
 
-We loop and create threads with **pthread_create** passing in **hello** as the start routine. Since this function takes no arguments we pass **NULL** as the fourth argument to the function. Also, since we do not need any custom behavior, we pass **NULL** as the second argument. After we create the threads we must join them all back in.
+```c
+#include <stdio.h>
+#include <pthread.h>
+#define NUM_THREADS 4
+
+void *hello(void *args)
+{
+    /* thread main */
+    printf("Hello Thread \n");
+    return 0;
+}
+
+int main(void)
+{
+    int i;
+    pthread_t tid[NUM_THREADS];
+    for (int i = 0; i < NUM_THREADS; i++)
+    {
+        /* create/fork threads */
+        pthread_create(&tid[i], NULL, hello, NULL);
+    }
+    for (int i = 0; i < NUM_THREADS; i++)
+    {
+        /* wait/join threads */
+        pthread_join(tid[i], NULL);
+    }
+
+    return 0;
+}
+```
 
 # PThread Creation Example 2
 
-In this case, the call to pthread_create passes in a value for the final parameter (the argument to pass to the start routine). This value is the pointer to current value of i the loop counter. In threadFunc, the pointer is first cast to an integer pointer, before a local variable is assigned to the value the pointer points to. Finally, the value is printed out.
+```c
+#include <stdio.h>
+#include <pthread.h>
+#define NUM_THREADS 4
+
+void *threadFunc(void *pArg)
+{
+    /* thread main */
+    int *p = (int *)pArg;
+    int myNum = *p;
+    printf("Thread number %d\n", myNum);
+    return 0;
+}
+
+int main(void)
+{
+    int i;
+    pthread_t tid[NUM_THREADS];
+    for (i = 0; i < NUM_THREADS; i++)
+    {
+        pthread_create(&tid[i], NULL, threadFunc, &i);
+    }
+    for (i = 0; i < NUM_THREADS; i++)
+    {
+        pthread_join(tid[i], NULL);
+    }
+
+    return 0;
+}
+```
 
 # PThread Creation Example 3
 
-This section explains how this is a valid input for the example above
+A valid output for example 2
 
 ```bash
 Thread Number 0
@@ -113,15 +174,22 @@ Thread Number 2
 Thread Number 3
 ```
 
-The variable i that is used in thread creation in the example above is a globally visible variable that is defined in main. When its value changes in one thread, all the other threads will see the new value.
+**i** is a global value, so when its value changes in one thread, all the other threads will see the new value.
 
-In this particular case, the second thread that is created with pthread_create is created when i == 1. In the thread function, p will become equivalent to the address of i and myNum will take on the value of i, which is presumably 1.
+## data race
 
-However, it is possible that before this thread had the chance to cast the pointer and define a local variable pointing to the pointer's value, the main thread went into the next iteration of the for loop and incremented i, making i now 2. Since we pass the address of i to the start routine, p will still point to the address of i, but myNum will point to the (new) value of i, which is 2.
+One thread tries to read a value that another thread is modifying
 
-We call the above situation a data race or race condition. In summary, these terms refers to situations in which one thread tries to read a value that another thread is modifying.
+## Correction
 
-To correct the problem, we must first initialize an array tNum that contains as many elements as we have threads. One each iteration of the for loop, we can set the index of tNum at i to i. We can then pass the address of tNum[i] to the call to pthread_create. This way we can increment i, while ensuring that the value of i that a thread needs to see does not change. We accomplish by copying the value of i over to this private storage that we do not modify.
+```c
+    int tNum[NUM_THREADS];
+    for (int i = 0; i < NUM_THREADS; i++)
+    {
+        tNum[i] = i;
+        pthread_create(&tid[i], NULL, threadFunc, &tNum[i]);
+    }
+```
 
 # PThread Mutexes
 
