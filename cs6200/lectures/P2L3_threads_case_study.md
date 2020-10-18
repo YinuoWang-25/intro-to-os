@@ -6,6 +6,8 @@
 
 ## Create Thread
 
+![Thread Creation](assets/P2L3/creation.png)
+
 ```c
 int pthread_create(pthread_t *thread, const pthread_attr_t *attr, void * (*start_routine)(void *), void *arg);
 ```
@@ -23,6 +25,8 @@ int pthread_join(pthread_t thread, void **status);
 return value is whether the join was a success or a failure.
 
 ## Thread Attribute
+
+![Attributes](assets/P2L3/attr_1.png)
 
 ### Data Structure
 
@@ -56,14 +60,18 @@ pthread_attr_{set/get}{attribute};
 
 ## Detachable Threads
 
+![Thread Attributes](assets/P2L3/attr_2.png)
+
 In pthreads, the default behavior for thread creation is joinable threads. For a joinable (child) thread, the parent will not terminate until the child has completed their execution.
 
 ### Zombies Thread
 
+![Thread Attributes](assets/P2L3/detach_1.png)
 Parent thread exits early
 
 ### Detached Thread
 
+![Thread Attributes](assets/P2L3/detach_2.png)
 Detached threads cannot be joined back into the parent, allowing the parent to exit early and the child threads to continue their execution.
 
 To detach threads, use
