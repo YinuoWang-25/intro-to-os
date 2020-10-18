@@ -250,21 +250,35 @@ Not always be useful. We immediately lock the mutex when removing a thread from 
 
 # Readers/Writer Problem
 
-Let's look at scenario where there a some subset of threads that want to read from shared state, and one thread that wants to write to shared state. This is commonly known as the readers/writer problem.
+**0 or more readers** can access the shared state
 
-At any given point in time, 0 or more readers can access the shared state at a given time, and 0 or 1 writers can access the shared state at a given time. The readers and writer cannot access the shared state at the same time.
+**0 or 1 writers** can access the shared state
 
-One naive approach would be to wrap access to the shared state itself in the mutex. However, this approach is too restrictive. Since mutexes only allow access to shared state one thread at time, we would be able to let multiple readers access state concurrently.
+## Mutex Solution
 
-Let's enumerate the conditions in which reading is allowed, writing is allowed, and neither is allowed. We will use a read_counter and a write_counter to express the number of readers/writers at a given time.
+too restrictive. Since mutexes only allow **one** thread at time while **multiple** readers can get access to state concurrently.
 
-If read_counter == 0 and write_counter == 0, then both writing and reading is allowed. If read_counter > 0, then only reading is allowed. If write_counter == 1, neither reading nor writing is allowed.
+## Conditions
 
-We can condense our two counters into one variable, resource_counter. If the resource_counter is zero, we will say that resource is free; that is, available for reads and writes. If the resource is being accessed for reading, the resource_counter will be greater than zero. We can encode the case where the resource is being accessed for writing by encoding resource_counter as a negative number.
+#### read_counter == 0 && write_counter == 0
 
-Our resource_counter is a proxy variable that reflects the state that the current resource is in. Instead of controlling updates to the shared state, we can instead control access to this proxy variable. As long as any update to the shared state is first reflected in an update to the proxy variable, we can ensure that our state is accessed via the policies we wish to enforce.
+both writing and reading is allowed
 
-[pic]
+#### read_counter > 0
+
+reading is allowed
+
+#### write_counter == 1
+
+neither reading nor writing is allowed
+
+## State of Resource
+
+**free** - resource_counter = 0
+**reading** - resource_counter > 0
+**writing** - resource_counter = -1
+
+![Reader Writer](assets/P2L2/reader_writer.png)
 
 # Readers/Writer Example
 
