@@ -208,6 +208,8 @@ When the condition becomes true, a thread holding the mutex may call the signal 
 
 # Condition Variable API
 
+![condition variable API](assets/P2L2/condition_variable_api.png)
+
 ## Condition Variable
 
 should contain
