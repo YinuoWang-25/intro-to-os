@@ -521,47 +521,67 @@ This approach still results in decreased work for the boss for each task, which 
 
 ### How many workers?
 
-If the work queue fills up, the boss cannot add items to the queue, and the amount of time that the boss has to spend per task increases. The likelihood of the queue filling up is dependent primarily on the number of workers.
+Adding more threads may help to increase/stabilize the throughput, but adding an arbitrary number of threads can introduce complexities
 
-Adding more threads may help to increase/stabilize the throughput, but adding an arbitrary number of threads can introduce complexities.
+#### Solution
 
-We can create workers on demand; that is, in response to a new task coming into our system. This may be inefficient, though if the cost of creating a worker (thread) is significant.
+##### 1. Create workers on demand
 
-A more common model is to create a pool of workers that are initialized up front. The questions remains: how do we know how many workers we ought to create?
+This may be inefficient, though if the cost of creating a worker is significant
 
-A common technique is to use a pool of workers that can be increased in response to high demand on the system. This is not quite like the on demand approach in that new threads will not be created one at a time when the demand passes a threshold, but rather the pool may be doubled or increased by some other multiple.
+##### 2. create a pool of workers
 
-The benefit of the boss/workers model is the overall simplicity. One thread assigns the work, and the rest of the threads complete it.
+The pool may be doubled or increased by some other multiple
 
-One downside of this approach is the thread pool management overhead. Another downside is that this system lacks locality. The boss doesn't keep track of what any of the workers were doing last. It is possible that a thread is just finishing a task that is very similar to an incoming task, and therefore may be best suited to complete that task. The boss has no insight into this fact.
+### Pros (for boss-worker model)
+
+Simplicity. One thread assigns the work, and the rest of the threads complete it
+
+### Cons (for boss-worker model)
+
+#### thread pool management overhead
+
+#### Locality
+
+The boss doesn't keep track of what workers were doing last.
+
+Maybe a thread just finished a task similar to an incoming one, and therefore best suited to complete that task
 
 ### Worker Variants
 
-An alternative to having all the workers in the system perform the same task is to have different workers specialized for different tasks. One added stipulation to this setup is that the boss has to do a little bit more work in determining which set of workers should handle a given task, but this extra work is usually offset by the fact that workers are now more efficient at completing their tasks.
+Have different workers specialized for certain tasks
 
-This approach exploits locality. By performing only a subset of the work, it is likely only a subset of the state will need to be accessed, and it is more likely this part of the state will already be present in CPU cache.
+The boss has to do more work in determining which set of workers should handle a given task, but this extra work is usually offset by the fact that workers are now more efficient at completing their tasks
 
-In addition, we can offer better quality of service. We can create more threads for urgent tasks or tasks that have higher paying customers.
+#### Pros
 
-One downside of this approach is the load balancing mechanisms and requirements may become more difficult to reason about.
+##### Better locality
+
+##### Better quality of service
+
+We can create more threads for urgent tasks or tasks that have higher paying customers
+
+#### Cons
+
+Load balancing is difficult
 
 ## Pipeline Pattern
 
-In a pipeline approach, the overall task is divided into subtasks and each of the subtasks are assigned a different thread. For example, if we have six step process, we will have six kinds of threads, one for each stage in the pipeline.
+Overall task is divided into subtasks and each of the subtasks are assigned a different thread
 
-At any given point in time, we may have multiple tasks being worked on concurrently in the system. For example, we can one have task currently at stage one of completion, two tasks at stage two, and so forth.
+We may have multiple tasks being worked on concurrently in the system
 
-The throughput of the pipeline will be dependent on the weakest link in the pipeline; that is, the task that takes the longest amount of time to complete. In this case, we can allocate more threads to that given step. For example, if a step takes three times as long as every other step, we can allocate three times the number of threads to that step.
+The throughput of the pipeline will be dependent on the weakest link in the pipeline. We can allocate more threads to that given step
 
-The best way to pass work between these stages is a shared buffer base communication between stages. That means the thread for stage one will put its completed work on a buffer that the thread from stage two will read from and so on.
+The best way to pass work between these stages is a shared buffer base communication between stages. Thread for stage one will put its completed work on a buffer that the thread from stage two will read from
 
-[pic]
+### Pros
 
-In summary, a pipeline is a sequence of stages, where a thread performs a stage in the pipeline, which is equivalent to some subtask within the end to end processing. To keep the pipeline balanced, a stage can be executed by more than one thread. Communication via shared buffers reduces coupling between the components of the system.
+Specialization and locality, which can lead to more efficiency
 
-A key benefit of this approach is specialization and locality, which can lead to more efficiency, as state required for subsequent similar jobs is likely to be present in CPU caches.
+### Cons
 
-A downside of this approach is that it is difficult to keep the pipeline balanced over time. When the input rate changes, or the resources at a given stage are exhausted, rebalancing may be required.
+Difficult to keep the pipeline balanced
 
 ## Layered Pattern
 
