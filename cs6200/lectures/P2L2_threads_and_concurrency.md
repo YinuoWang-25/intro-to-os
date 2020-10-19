@@ -434,57 +434,90 @@ User level thread must first be associated with a kernel level thread, and then 
 
 # Multithreading Models
 
-We will consider three multithreading models.
-
 ## One-to-One Model
 
-In this model, all of the user level threads for a process are mapped onto a single kernel level thread. At the user level, there is a thread management library to makes decisions about which user level thread to map onto the kernel level thread at any given point in time. That user level thread will still only run once that kernel level thread is scheduled on the CPU by the kernel level scheduler.
+![One-to-One Model](assets/P2L2/one_to_one_model.png)
 
-The benefit of this approach is that it is portable. Everything is done at the user level, which frees us from being reliant on the OS limits and policies. As well, we don't have make system calls for any thread-related decisions.
+## Many-to-One Model
 
-However, the operating system loses its insight into application needs. It doesn't even know that the process is multithreaded. All it sees is one kernel level thread. If the user level library schedules a thread that performs some blocking operation, the OS will place the associated kernel level thread onto some request queue, which will end up blocking the entire process, even though more work can potentially be done.
+![Many-to-One Model](assets/P2L2/many_to_one_model.png)
+
+At the user level, a thread management library to makes decisions about which user level thread to map onto the kernel level thread at any given point in time
 
 ## Many-to-Many Model
 
-This model allows for some user threads to have a one-to-many relationship with a kernel thread, while allowing other user threads to have a one-to-one relationship with a kernel thread.
-
-The benefit is that we get the best of both worlds. The kernel is aware that the process is multithreaded since it has assigned multiple kernel level threads to the process. This means that if one kernel level thread blocks on an operation, we can context switch to another, and the process as a whole can proceed.
-
-We can have a situation where a user level thread can be scheduled on any allocated kernel level thread. This is known as an unbound thread. Alternatively, we can have the case where a user level thread will always be scheduled atop the same kernel level thread. This is known as a bound thread.
-
-One of the downsides of this model is that is requires extra coordination between the user- and kernel-level thread managers.
+![Many-to-Many Model](assets/P2L2/many_to_many_model.png)
 
 # Scope of Multithreading
 
-At the kernel level, there is system wide thread management, supported by the operating system level thread managers. These managers will look at the entire platform before making decision on how to run its threads. This is the system scope.
+## System Scope
 
-On the other hand, at the user level, the user level library that manages all of the threads for the given process it is linked to. The user level library thread managers cannot see threads outside of their process, so we say these managers have process scope.
+system-wide thread management by OS level thread managers
 
-To understand the consequences of having different scope, let's consider the scenario where we have two processes, A and B. A has twice as many user level threads as B.
+- CPU scheduler
 
-If the threads have a process scope, this means that the kernel cannot see them, and will probably allocate equal kernel resources to A and B. This means that a given thread in A will be allocated half of the CPU cycles as will be allocated to a thread in B.
+These managers will look at the entire platform before making decision on how to run its threads
 
-If we have a system scope, the user level threads will be visible at the kernel, so the kernel will allocate the CPU relative to the total amount of user threads, as opposed to the total amount of processes. In the case of A and B, if the threads in these processes have a system scope, A will most likely be allocated twice the number of kernel level threads as B.
+## Process Scope
 
-[pic]
+User-level library manages all of the threads within a single process
+
+![Scope of Multithreading](assets/P2L2/scope.png)
+
+A has twice as many user level threads as B
+
+If the threads have a process scope, kernel cannot see them, and will probably allocate equal kernel resources to A and B
+
+For system scope, the user level threads will be visible at the kernel, so the kernel will allocate the CPU relative to the total amount of user threads, as opposed to the total amount of processes
 
 # Multithreading Patterns
 
 ## Boss/Workers Pattern
 
-The boss/workers pattern is characterized by having one boss thread and some number of worker threads. The boss is in charge of assigning work to the workers, and the workers are responsible for completing the entire task that is assigned to them.
+### Structure
 
-The throughput of the system is limited by the boss thread, since the boss has to do some work for every task that comes into the system. As a result it is imperative to keep the boss efficient to keep the overall system moving smoothly. Specifically, the throughput of the system is inversely proportional to the amount of time the boss spends on each task.
+boss - assign work to workers
+worker: perform entire task
 
-How does the boss assign work to the workers? One solution is to keep track of which workers are currently working, and send a direct signal to a worker that is idle. This means that the boss must do for each worker, since it has to select a worker and then wait for that work to accept the work.
+### Throughput
 
-The positive of this approach is that the workers do not need to synchronize amongst each other. The downside of this approach is that the boss must keep track of every worker, and this extra work will decrease throughput.
+Limited by the boss thread
 
-Another option is to establish a queue between the boss and the workers, similar to a producer/consumer queue. In this case, the boss is the sole producer, while the workers are consumers.
+Specifically, it is inversely proportional to the amount of time the boss spends on each task
 
-The positive of this approach is that the boss doesn't need to know any of the details about the workers. It just places the work it accepts on the queue and moves on. Whenever a worker becomes free it just looks at the front of the queue and retrieves the next item.
+![Boss Worker](assets/P2L2/boss_worker.png)
 
-The downside of this approach is that further synchronization is required, both for the boss producing to the queue, and the workers competing amongst one another to consume from the queue. Despite this downside, this approach still results in decreased work for the boss for each task, which increases the throughput for the whole system.
+### How Assign
+
+#### Direct Signalling
+
+Boss keep track of workers and send a direct signal to a worker that is idle.
+
+Boss must do for each worker, since it has to select a worker and then wait for that work to accept the work
+
+##### Pros
+
+workers do not need to synchronize amongst each other
+
+##### Cons
+
+Boss must keep track of every worker, and this extra work will decrease throughput
+
+#### Producer/consumer Queue
+
+Boss is the sole producer, while the workers are consumers.
+
+##### Pros
+
+Boss doesn't need to know any of the details about the workers.
+
+##### Cons
+
+Further synchronization is required, both for the boss producing to the queue, and the workers competing amongst one another to consume from the queue.
+
+##### Overall
+
+This approach still results in decreased work for the boss for each task, which increases the throughput for the whole system
 
 ### How many workers?
 
