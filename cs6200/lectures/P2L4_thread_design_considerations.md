@@ -1,6 +1,5 @@
 # Kernel Vs. User Level Threads
 
-Threads can be supported at the user level, the kernel level, or both.
 
 Supporting threads at the kernel level means that the operating system itself is multithreaded. To do this the kernel must maintain some data structure to represent threads, and must also maintain all of the scheduling and syncing mechanisms to make multithreading correct and efficient.
 
