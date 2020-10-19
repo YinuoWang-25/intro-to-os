@@ -318,29 +318,19 @@ Even though we call broadcast before signal we don't really have control over wh
 
 # Critical Section Structure
 
-If we consider the reading and writing of the data to be the protected operations of the above application, then those sections of code are really the critical sections of our application, even though the exist outside of a mutex block.
+![Critical Section Structure](assets/P2L2/critical_section_structure.png)
 
-[pic]
+Critical section for above example is **read and write data part**
 
-The structure of our application is such that even though the critical operations are not governed by a mutex, entering and exiting from those operations is.
+Even though the critical operations are not governed by a mutex, entering and exiting from those operations is
 
-[pic]
-
-For example, before we can read data, we must first lock the mutex and increment resource_counter. As well, after we read data, we must again lock the mutex and decrement resource_counter. A similar setup exists for writing data.
-
-Each time we acquire the mutex, we must ensure that a condition is met such that we can proceed safely. If the condition is not met, we must wait. Once the condition is met, we can update our proxy variable. If appropriate, we can signal/broadcast to other threads if some condition has changed. Finally we can unlock the mutex.
-
-[pic]
-
-The "enter critical section" blocks can be seen as a higher level "lock" operation, while the "exit critical section" blocks can be seen as a higher level "unlock" operation, even though a mutex is being locked and unlocked within each of those blocks.
-
-[pic]
+![Critical Section Structure](assets/P2L2/rw_critical_section.png)
 
 # Critical Section Structure With Proxy
 
-[pic]
+![Critical Section With Proxy](assets/P2L2/critical_section_with_proxy.png)
 
-Again, this structure allows up to implement more complex sharing scenarios than the simple mutual exclusion that mutexes allow.
+Only one thread can get access to mutex to update proxy, but multiple thread can execute critical section concurretly
 
 # Common Pitfalls
 
