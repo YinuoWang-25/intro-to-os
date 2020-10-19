@@ -334,35 +334,33 @@ Only one thread can get access to mutex to update proxy, but multiple thread can
 
 # Common Pitfalls
 
-Make sure to keep track of the mutex/condition variables that are used with a given shared resource. Comments help!
+Make sure to keep track of the mutex/condition variables that are used with a given shared resource.
 
-Make sure to always protect access to shared state, and make sure to do so consistently by acquiring the same mutex. A common mistake occurs when we forget to lock or unlock a mutex associated with a given piece of state. Compilers may generate warnings/errors to help us.
+Make sure to always use lock or unlock
 
-Don't use different mutexes to access a single resource. Using different mutexes to access a resource is akin to just not using a mutex at all, since there is no mutual exclusion amongst different mutexes.
+Don't use different mutexes to access a single resource. Using different mutexes to access a resource is akin to just not using a mutex at all, since there is no mutual exclusion amongst different mutexes
 
-Make sure that you are signaling or broadcasting on the correct condition. Signaling that reads can occur when you should be signaling that writes can occur can impact the correctness of your program.
+Make sure that you are signaling or broadcasting on the correct condition
 
-Make sure to not use signal when broadcast needs to be used. Note that the opposite is actually okay (although it may incur a performance penalty).
+Make sure to not use signal when broadcast needs to be used. The opposite is actually okay
 
-Remember that the order of execution of threads is not related to the order in which we call signals or broadcasts. If priority/ordering guarantees are needed, other strategies must be devised.
+The order of execution of threads is not related to the order in which we call signals or broadcasts.
 
 # Spurious Wake-ups
 
-[pic]
+![Spurious Wake-ups](assets/P2L2/spurious_wake_up.png)
 
-We have a setup similar to the readers/writer example we saw previously. In this case, the writer is locking the mutex after writing to the shared state. Once the mutex is acquired, the proxy variable is updated, and a broadcast and signal are sent.
+Reader threads will have been woken up from one queue **(associated with the condition variable)** only to be placed on another queue **(associated with acquiring the mutex)**
 
-When the broadcast is issued, the thread library can start removing reader threads from the wait queue for their condition variable, potentially even before the writer releases the mutex.
+Spurious wake ups will not affect the correctness of the program, but rather the performance, as cycles will be wasted context switching to threads that will just be placed back on another queue
 
-What will happen, as the readers are removed from this queue is that they will try to acquire the mutex. Since the writer has not yet released the mutex, none of the readers will be able to acquire the mutex. They will have been woken up from one queue (associated with the condition variable) only to be placed on another queue (associated with acquiring the mutex) .
+## Fix Solution
 
-This situation in which we unnecessarily wake up a thread when there is no possible way for it proceed is called a spurious wake up.
+Often we can unlock the mutex before we signal or broadcast. Sometimes we cannot.
 
-Note that spurious wake ups will not affect the correctness of the program, but rather the performance, as cycles will be wasted context switching to threads that will just be placed back on another queue.
+Wether signal/broadcast conditionally depending on shared state which must be accessed from within the mutex
 
-Often we can unlock the mutex before we signal or broadcast. Sometimes we cannot. For example, if we signal/broadcast conditionally depending on some property of the shared state, that property must be accessed from within the mutex, which means the signal or broadcast must also take place within the mutex.
-
-[pic]
+![Spurious Wake-ups](assets/P2L2/spurious_wakeup_fix.png)
 
 # Deadlocks
 
