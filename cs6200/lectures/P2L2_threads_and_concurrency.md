@@ -282,34 +282,39 @@ neither reading nor writing is allowed
 
 # Readers/Writer Example
 
-[pic]
+## Data
 
-In this example, we can see that our reading and writing operations exist outside of a locked mutex, but are preceded and followed by a mutex enforced update to the shared variable, resource_counter.
+### resource_counter
 
-Our program will require four things:
+a proxy variable for the state of the shared resource
 
-- resource_counter - a proxy variable for the state of the shared resource
-- counter_mutex - a mutex which controls access to resource_counter
-- read_phase - a condition variable signifying that the resource is ready for reading
-- write_phase - a condition variable signifying that the resource is ready for writing
+### counter_mutex
 
-Readers can begin reading by first locking the mutex and incrementing the value of the resource_counter. If multiple readers try to lock the mutex at once, all but one will block and each will unblock as the mutex becomes available.
+a mutex which controls access to resource_counter
 
-If a writer tries to enter the fray while multiple readers are accessing the state, the writer will have to wait, since our application is such that writes cannot proceed while reads are ongoing. The writer will wait on the condition variable write_phase.
+### read_phase
 
-Once the reader decrements resource_counter, it will check to see if resource_counter is zero. If so, that means our application is in a state where writes can proceed, so this final reader will signal on the write_phase variable to wake up a waiting writer. Given that only one writer can proceed at a time, it does not make sense to use a broadcast here.
+a condition variable signifying that the resource is ready for reading
 
-The pending writer will be removed from the wait queue that is associated with the write_phase variable, and the counter mutex will be reacquired before coming out of the wait operation. We recheck that our predicate (resource_counter != 0) is still true before we adjust resource_counter. We can then proceed with our write.
+### write_phase
 
-NB: We need to recheck our condition in our while loop because the act of removing the thread from the wait queue and the act of reacquiring the mutex occur as two separate procedures. This means that the mutex could be reacquired in between these two steps by a different thread, with resource_counter being updated by that thread. Thus, we must check that our condition holds one last time after we acquire the mutex.
+a condition variable signifying that the resource is ready for writing
 
-If a new thread wants to write while another thread is currently writing, this new thread will have to wait on write_phase. If a new thread wants to read while another thread is currently writing, this new thread will also have to wait, but on read_phase instead.
+## Implementation
 
-Once the current writer completes, it resets resource_counter to 0, and then broadcasts to the read_phase and signals to write_phase. We signal to write_phase because only one writer can access the shared state at a given time, and we broadcast to read_phase because multiple threads are allowed to read from the shared state at a given time.
+![Reader Writer Code](assets/P2L2/reader_writer_code.png)
 
-NB: Note that multiple threads cannot access the mutex concurrently, as this defeats the point of the mutex. But, after each thread accesses the mutex in turn, all readers can read from the shared state concurrently. This is why a mutex over the shared state itself was not sufficient: concurrent reads would not have been possible.
+## Explanation
 
-Even though we call broadcast before signal we don't really have control over whether a waiting reader or writer will be woken up first. That decision is left up to the thread scheduler, into which we do not usually have insight.
+Readers begin reading by first locking the mutex and incrementing the value of the **resource_counter**
+
+Once the reader decrements **resource_counter**, it will check to see if **resource_counter** is zero. If so, this final reader will signal on the **write_phase** variable to wake up a waiting writer.
+
+After re-acquired mutrex, We need to **recheck** our condition in while loop because the act of **removing** the thread from the wait queue and **reacquiring** the mutex occur as two separate procedures. This means that the mutex could be reacquired in between these two steps by a different thread, with resource_counter being updated by that thread.
+
+Multiple threads cannot access the mutex concurrently. But, after each thread accesses the mutex in turn, all readers can read from the shared state concurrently
+
+Even though we call broadcast before signal we don't really have control over whether a waiting reader or writer will be woken up first
 
 # Critical Section Structure
 
