@@ -412,11 +412,25 @@ We hope that the system never deadlocks, and if fails we just reboot
 
 # Kernel Vs. User-Level Threads
 
-Kernel level threads imply that the operating system itself is multithreaded. Kernel level threads are visible to the kernel and are managed by kernel level components like the kernel level scheduler. The operating system scheduler will determine how these threads will be mapped onto the underlying physical CPU(s) and which ones will execute at any given point.
+## Kernel Thread
 
-Some kernel level threads may exist to support user level applications, while other kernel level threads may exist just to run operating system level services, like daemons for instance.
+Kernel level threads imply that the operating system itself is multithreaded
 
-At the user level, the processes themselves are multithreaded and these are the user level threads. For a user level thread to actually execute, it must first be associated with a kernel level thread, and then the OS level scheduler must schedule that kernel level thread on the CPU.
+Kernel level threads are visible to the kernel and are managed by kernel level components
+
+- Kernel level scheduler
+
+The operating system scheduler will determine how these threads will be mapped onto the underlying physical CPU(s) and which ones will execute at any given point
+
+Some kernel level threads may exist to support user level applications, while other kernel level threads may exist just to run operating system level services, like daemons for instance
+
+## User-level Thread
+
+Processes themselves are multithreaded and these are the user level threads
+
+User level thread must first be associated with a kernel level thread, and then the OS level scheduler schedule that kernel level thread on the CPU
+
+![Kernel Vs. User-Level Threads](assets/P2L2/kernel_user_thread.png)
 
 # Multithreading Models
 
