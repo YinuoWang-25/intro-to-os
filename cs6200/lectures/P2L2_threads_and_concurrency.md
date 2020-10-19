@@ -364,29 +364,51 @@ Wether signal/broadcast conditionally depending on shared state which must be ac
 
 # Deadlocks
 
-A deadlock occurs when two or more competing threads are waiting on each other to complete, but none of them ever do.
+## Definition
 
-Let's consider two threads, T1 and T2, that need to perform operations on some shared variables A and B. Before performing these operations, each thread must lock the mutex associated with those variables, because they are part of shared state.
+Two or more competing threads are waiting on each other to complete, but none of them ever do.
 
-Let's assume that T1 first locks the mutex for A and then locks the mutex for B before performing the operation. Let's assume that T2 first locks the mutex for B and then locks the mutex for A, before performing the operation.
+![Deadlock](assets/P2L2/deadlock.png)
 
-This is where the problem lies. T2 will not be able to lock the mutex for A, because T1 is holding it. T1 will not be able to lock the mutex for B, because T1 is holding it. More importantly, neither T1 nor T2 will be able to release the mutex that the other needs, since they are both blocking trying to acquire the mutex the other has.
+## Avoid
 
-How can we avoid these situations?
+### Unlock A before locking B
 
-One solution would be to unlock A before locking B. However, this solution will not work in this scenario since we need access to both A and B.
+This solution will not work in this scenario since we need access to both A and B
 
-Another solution would be to get all locks up front, and then release all of them at the end. This solution may work for some applications, but may be too restrictive for others, because it limits the amount of parallelism that can exist in the system.
+### Get all locks up front, and then release all of them at the end
 
-The last and most ideal solution is to maintain a lock order. In this case, we would enforce that all threads must lock the mutex associated with A before locking the mutex associated with B, or vice versa. The particular order may not be important, but rather the enforcement of that ordering within the application is paramount.
+This solution may work for some applications, but may be too restrictive for others because it limits the amount of parallelism that can exist in the system
 
-A cycle in the wait graph is necessary and sufficient for a deadlock to occur, and the edges in this graph are from the thread waiting on a resource to the thread owning a resource.
+### [ Ideal ] Maintain a lock order
 
-We can try to prevent deadlocks. Each time a thread is about to acquire a mutex, we can check to see if that operation will cause a deadlock. This can be expensive.
+All threads must lock the mutex associated with A before locking the mutex associated with B, or vice versa
 
-Alternatively, we can try to detect deadlocks and recover from them. We can accomplish this through analysis of the wait graph and trying to determine whether any cycles have occurred. This is still an expensive operation as it requires us to have a rollback strategy in the event that we need to recover.
+## Summary
 
-We can also apply the ostrich algorithm by doing nothing! We can hope that the system never deadlocks, and if we are wrong we can just reboot.
+A cycle in the wait graph is necessary and sufficient for a deadlock to occur
+
+- the edges from thread waiting on a resource to thread owning a resource
+
+## What can we do
+
+### Deadlock Prevention
+
+Each time a thread is about to acquire a mutex, we can check to see if that operation will cause a deadlock.
+
+- Expensive
+
+### Deadlock Detection and Recovery
+
+Analysis of the wait graph and trying to determine whether any cycles have occurred.
+
+Still expensive as it requires us to have a rollback strategy in the event that we need to recover
+
+### Ostrich Algorithm
+
+Do nothing
+
+We hope that the system never deadlocks, and if fails we just reboot
 
 # Kernel Vs. User-Level Threads
 
