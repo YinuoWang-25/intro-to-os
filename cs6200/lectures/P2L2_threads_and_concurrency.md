@@ -585,10 +585,14 @@ Difficult to keep the pipeline balanced
 
 ## Layered Pattern
 
-A layered model of multithreading is one in which similar subtasks are grouped together into a "layer" and the threads that are assigned to a layer can perform any of the subtasks in that layer. The end-to-end task must pass through all the layers.
+![Layered Pattern](assets/P2L2/layered_pattern.png)
 
-A benefit of this approach is that we can have specialization while being less fine-grained than the pipeline pattern.
+### Pros
 
-Downsides of this approach include that it may not be suitable for all applications and that synchronization may be more complex as each layer must know about the layers above and below it to both receive inputs and pass results.
+Specialization while being less fine-grained than the pipeline pattern
 
-[pic]
+### Cons
+
+- Not be suitable for all applications
+
+- Synchronization may be more complex as each layer must know about the layers above and below it to both receive inputs and pass results
