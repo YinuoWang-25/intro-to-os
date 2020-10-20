@@ -1,48 +1,53 @@
 # Kernel Vs. User Level Threads
 
-Threads can be supported at the user level, the kernel level, or both.
+## Kernel Level Threads
 
-Supporting threads at the kernel level means that the operating system itself is multithreaded. To do this the kernel must maintain some data structure to represent threads, and must also maintain all of the scheduling and syncing mechanisms to make multithreading correct and efficient.
+The operating system is multithreaded
 
-Supporting threads at the user level means there is a user level library linked with the application that provides all of the management and support for threads. It will support the data structure as well as the scheduling mechanisms. Different processes may use entirely different user level thread libraries.
+Kernel must maintain some **data structure** to represent threads, and maintain all of the **scheduling** and **syncing mechanisms** to make multithreading correct and efficient
+
+## User Level Threads
+
+A user level library provides **management** and **support** for threads. It will support the data structure as well as the scheduling mechanisms. Different processes may use entirely different user level thread libraries.
 
 User level threads can be mapped onto kernel level threads via a 1:1, many:1 and many:many patterns.
 
-[pic]
+![Threads](assets/P2L4/kernel_user_threads.png)
+
 
 # Thread Related Data Structures: Single CPU
 
-A process is described by its process control block, which contains:
+A process is described by its **process control block**
 
 - virtual address mapping
 - stack
 - registers
 
-If the process links in a user level threading library, that library will need some way to represent threads, so that it can track thread resource use and make decisions about thread scheduling a synchronization.
-
-The library will maintain some user level thread data structure containing:
+User level threading library will maintain some user level thread data structure containing
 
 - thread ids
 - thread registers
 - thread stacks
 
-If we want there to be multiple kernel level threads associated with this process, we don't want to have to replicate the entire process control block in each kernel level thread we have access to.
+We don't want to replicate entire process control block in each kernel level thread. So split the PCB into smaller structures, and only store **stack** and **registers** in the kernel level thread data structure (since these will be different for different kernel level threads)
 
-The solution is to split the process control block into smaller structures. Namely, the stack and registers are broken out (since these will be different for different kernel level threads) and only these pieces of information are stored in the kernel level thread data structure.
-
-[pic]
+![Threads](assets/P2L4/data_structure_single_cpu.png)
 
 # Thread Data Structures: At Scale
 
-If we have multiple processes, we will need copies of the user level thread structures, process control blocks, and kernel level thread structures to represent every aspect of every process.
+If we have multiple processes, we need to start maintaining **relationships**
 
-We need to start maintaining relationships among these data structures. The user level library keeps track of all of the user level threads for a given process, so there is a relationship between the user level threads and the process control block that represents that process. For each process, we need to keep track of the kernel level threads that execute on behalf of the process, and for each kernel level thread, we need to keep track of the processes on whose behalf we execute.
+- Between the user level threads and the process control block that represents that process
 
-If the system has multiple CPUs, we need to have a data structure to represent those CPUs, and we need to maintain a relationship between the kernel level threads and the CPUs they execute on.
+- Between process and all kernel level threads (two-way)
 
-When the kernel itself is multithreaded, there can be multiple threads supporting a single process. When the kernel needs to context switch among kernel level threads, it can easily see if the entire PCB needs to be swapped out, as the kernel level threads point to the process on behalf of whom they are executing.
+- Between kernel level threads and CPUs execute on (for multiple CPUs)
 
-[pic]
+When the kernel itself is multithreaded, there can be multiple threads supporting a single process
+
+When the kernel needs to context switch among kernel level threads, it can easily see if the entire PCB needs to be swapped out, as the kernel level threads point to the process on behalf of whom they are executing
+
+![Threads](assets/P2L4/data_structure_scale.png)
 
 # Hard and Light Process State
 
