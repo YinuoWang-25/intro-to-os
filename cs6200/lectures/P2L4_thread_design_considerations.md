@@ -51,24 +51,41 @@ When the kernel needs to context switch among kernel level threads, it can easil
 
 # Hard and Light Process State
 
-When the operating system context switches between two kernel level threads that belong to the process, there is information relevant to both threads in the process control block, and also information that is only relevant to each thread.
+![Threads](assets/P2L4/process_state.png)
 
-Information relevant to all threads includes the virtual address mapping, while information relevant to each thread specifically can include things like signals or system call arguments. When we context switch among the two kernel level threads, we want to preserve some portion of the PCB and swap out the rest.
+There are two types of information in the process control block
 
-We can split up the information in the process control block into hard process state which is relevant for all user level threads in a given process and light process state that is only relevant for a subset of user level threads associated with a particular kernel level thread.
+- Relevant to all Threads
 
-[pic]
+  - virtual address mapping
+
+- Each Thread
+
+  - signals
+  - system call arguments
+
+When we context switch among the two kernel level threads, we want to preserve some portion of the PCB and swap out the rest
+
+### Hard process state
+
+Information relevant for all user level threads
+
+### Light process state
+
+Information only relevant for a subset of user level threads associated with a particular kernel level thread
 
 # Rationale For Data Structures
 
-Single control block:
+![Threads](assets/P2L4/rationale.png)
+
+## Single control block
 
 - large continuous data structure
 - private for each entity (even though some information can be shared)
 - saved and restored in entirety on each context switch
 - updates may be challenging
 
-Multiple data structures:
+Multiple data structures##
 
 - smaller data structures
 - easier to share
@@ -79,19 +96,33 @@ Multiple data structures:
 
 ## SunOS paper
 
-[pic]
+![Threads](assets/P2L4/sun_os.png)
 
-The OS is intended for multiple CPU platforms and the kernel itself is multithreaded. At the user level, the processes can single or multithreaded, and both many:many and one:one ULT:KLT mappings are supported.
+- Multiple CPU platforms
 
-Each kernel level thread that is executing on behalf of a user level thread has a lightweight process (LWP) data structure associated with it. From the user level library perspective, these LWPs represent the virtual CPUs onto which the user level threads are scheduled. At the kernel level, there will be a kernel level scheduler responsible for scheduling the kernel level threads onto the CPU.
+- Multithreaded kernel
 
-## Lightweight Threads paper
+- User level processes can single or multithreaded
 
-When a thread is created, the library returns a thread id. This id is not a direct pointer to the thread data structure but is rather an index into an array of thread pointers.
+- Both many:many and one:one ULT:KLT mappings are supported
 
-The nice thing about this is that if there is a problem with the thread, the value at the index can change to say -1 instead of the pointer just pointing to some corrupt memory.
+### Lightweight Process
 
-The thread data structure contains different fields for:
+Each kernel level thread has a lightweight process (LWP)
+
+For user level library, LWPs represent the virtual CPUs the user level threads are scheduled
+
+At the kernel level, there will be a kernel level scheduler responsible for scheduling the kernel level threads onto the CPU
+
+# User Level Structures in Solaris 2.0
+
+When a thread is created, the library returns a thread id. This id is not a direct pointer to the thread data structure but is rather an index into an array of thread pointers
+
+#### Benefit
+
+If problem with the thread, the index value can change to -1 instead of the pointer just pointing to some corrupt memory
+
+## Data Structure
 
 - execution context
 - registers
@@ -101,31 +132,43 @@ The thread data structure contains different fields for:
 - thread local storage
 - stack
 
-The amount of memory needed for a thread data structure is often almost entirely known upfront. This allows for compact representation of threads in memory: basically, one right after the other in a contiguous section of memory.
+## Pros
 
-However, the user library does not control stack growth. With this compact memory representation, there may be an issue if one thread starts to overrun its boundary and overwrite the data for the next thread. If this happens, the problem is that the error won't be detected until the overwritten thread starts to run, even though the cause of the problem is the overwriting thread.
+The amount of memory needed for a thread data structure is often almost entirely known upfront at compile time. This allows for compact representation of threads in memory: one right after the other in a contiguous section of memory
 
-The solution is to separate information about each thread by a red zone. The red zone is a portion of the address space that is not allocated. If a thread tries to write to a red zone, the operating system causes a fault. Now it is much easier to reason about what happened as the error is associated with the problematic thread.
+## Problem
 
-[pic]
+The user library does not control stack growth. With this compact memory representation, one thread may overwrite the data for the next thread.
+
+The error won't be detected until the overwritten thread starts to run, even though the cause of the problem is the overwriting thread
+
+## Red Zone (fix the problem)
+
+A portion of the address space that is not allocated
+
+Separate information about each thread
+
+If a thread tries to write to a red zone, the operating system causes a fault
+
+![Threads](assets/P2L4/lightweight_thread.png)
 
 # Kernel Level Structures in Solaris 2.0
 
-For each process, the kernel maintains a bunch of information, such as:
+For each process, the kernel maintains information like:
 
 - list of kernel level threads
 - virtual address space
 - user credentials
 - signal handlers
 
-The kernel also maintains a light-weight process (LWP), which contains data that is relevant for some subset of the user threads in a given process. The data contained in an LWP includes:
+The kernel also maintains a light-weight process (LWP), which contains data that is relevant for some subset of the user threads. The data contained in an LWP includes:
 
 - user level registers
 - system call arguments
 - resource usage info
 - signal masks
 
-The data contained in the LWP is similar to the data contained in the ULT, but the LWP is visible to the kernel. When the kernel needs to make scheduling decisions, they can look at the LWP to help make decisions.
+The data contained in the LWP is similar to the data contained in the ULT, but the LWP is visible to the kernel. When the kernel needs to make scheduling decisions, they can look at the LWP to help make decisions
 
 The kernel level thread contains:
 
@@ -134,7 +177,7 @@ The kernel level thread contains:
 - scheduling info
 - pointers to associated LWPs, and CPU structures
 
-The kernel level thread has information about an execution context that is always needed. There are operating system services (for example, scheduler) that need to access information about a thread even when the thread is not active. As a result, the information in the kernel level thread is not swappable. The LWP data does not have to be present when a process is not running, so its data can be swapped out.
+The kernel level thread has information about an execution context that is always needed. There are operating system services (for example, scheduler) that need to access information about a thread even when the thread is not active. So the information in the kernel level thread is not swappable. The LWP data does not have to be present when a process is not running, so its data can be swapped out
 
 The CPU data structure contains:
 
@@ -142,27 +185,31 @@ The CPU data structure contains:
 - list of kernel level threads
 - dispatching & interrupt handling information
 
-Given a CPU data structure it is easy to traverse and access all the other linked data structures. In SPARC machines (what Solaris runs on), there is a dedicated register that holds the thread that is currently executing. This makes it even easier to identify and understand the current thread.
+Given a CPU data structure it is easy to traverse and access all the other linked data structures. In SPARC machines (what Solaris runs on), there is a dedicated register that holds the thread that is currently executing. This makes it easier to identify and understand the current thread
 
-[pic]
+![Threads](assets/P2L4/kernel_level_data.png)
 
-A process data structure has information about the user and points to the virtual address mapping data structure. It also points to a list of kernel level threads. Each kernel level thread structure points to the lightweight process and the stack, which is swappable.
+A process data structure has information about the user and points to the virtual address mapping data structure. It also points to a list of kernel level threads. Each kernel level thread structure points to the lightweight process and the stack, which is swappable
 
-[pic]
+![Threads](assets/P2L4/kernel_example.png)
 
 # Basic Thread Management Interaction
 
-Consider a process with four user threads. However, the process is such that at any given point in time the actual level of concurrency is two. It always happens that two of its threads are blocking on, say, IO and the other two threads are executing.
+Consider a process with four user threads. However, the actual level of concurrency is two
 
-If the operating system has a limit on the number of kernel threads that it can support, the application might have to request a fixed number of threads to support it. The application might select two kernel level threads, given its concurrency.
+If the operating system has a limit on the number of kernel threads that it can support, the application might have to request a fixed number of threads to support it. The application might select two kernel level threads, given its concurrency
 
-When the process starts, maybe the operating system only allocates one kernel level thread to it. The application may specify (through a set_concurrency system call) that it would like two threads, and another thread will be allocated.
+When the process starts, maybe the operating system only allocates one kernel level thread to it. The application may specify (through a set_concurrency system call) that it would like two threads, and another thread will be allocated
 
-Consider the scenario where the two user level threads that are scheduled on the kernel level threads happen to be the two that block. The kernel level threads block as well. This means that the whole process is blocked, even though there are user level threads that can make progress. The user threads have no way to know that the kernel threads are about to block, and has no way to decide before this event occurs.
+![Threads](assets/P2L4/thread_interactions.png)
 
-What would be helpful is if the kernel was able to signal to the user level library before blocking, at which point the user level library could potentially request more kernel level threads. The kernel could allocate another thread to the process temporarily to help complete work, and deallocate the thread it becomes idle.
+When the two user level threads that are scheduled on the kernel level threads happen to be the two that block. The kernel level threads block as well. Then the whole process is blocked, even though there are user level threads that can make progress. The user threads have no way to know that the kernel threads are about to block, and has no way to decide before this event occurs
 
-Generally, the problem is that the user level library and the kernel have no insight into one another. To solve this problem, the kernel exposes system calls and special signals to allow the kernel and the ULT library to interact and coordinate.
+What would be helpful is if the kernel was able to signal to the user level library before blocking, at which point the user level library could potentially request more kernel level threads. The kernel could allocate another thread to the process temporarily to help complete work, and deallocate the thread it becomes idle
+
+Generally, the problem is that the user level library and the kernel have no insight into one another. To solve this problem, the kernel exposes system calls and special signals to allow the kernel and the ULT library to interact and coordinate
+
+![Threads](assets/P2L4/thread_interactions_2.png)
 
 # Thread Management Visibility and Design
 
