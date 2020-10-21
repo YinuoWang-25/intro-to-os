@@ -307,47 +307,54 @@ Once a thread is no longer needed, the memory associated with it should be freed
 
 ## Interrupts
 
-Interrupts are events that are generated externally by components other than the CPU to which the interrupt is delivered. Interrupts are notifications that some external event has occurred.
+Events generated externally other than the CPU
 
-Components that may deliver interrupts can include:
+- I/O devices, timers, other CPUs
 
-- I/O devices
-- Timers
-- Other CPUs
+Interrupts are notifications that some external event has occurred
 
 Which particular interrupts can occur on a given physical platform depends on the configuration of that platform, the types of devices the platform comes with, and the hardware architecture of the platform itself.
 
-Interrupts appear asynchronously. That is, they do not appear in response to any specific action that is taking place on the CPU.
+Interrupts appear asynchronously. They do not appear in response to any specific action that is taking place on the CPU
 
 ## Signals
 
-Signals are events that are triggered by the CPU and the software running on it.
+Signals are events that are triggered by the CPU and the software running on it
 
-Which signals can occur on a given platform depends very much on the given operating system. Two identical platforms will have the same interrupts but will have different signals if they are running different operating systems.
+Which signals can occur on a given platform depends very much on the given operating system. Two identical platforms will have the same interrupts but will have different signals if they are running different operating systems
 
-Signals can appear both synchronous and asynchronously. Signals can occur in direct response to an action taken by a CPU, or they can manifest similar to interrupts.
+Signals can appear both **synchronous** and **asynchronously**. Signals can occur in direct response to an action taken by a CPU, or they can manifest similar to interrupts
+
+![Threads Issue](assets/P2L4/interrupt_signal.png)
+
 
 ## Signal/Interrupt Similarities
 
-Both signals and interrupts have a unique identifier whose values depend on the hardware or operating system.
+Have a unique identifier whose values depend on the hardware or operating system
 
-Both interrupts and signals can be masked. An interrupt can be masked on a per-CPU basis and a signal can be masked on a per-process basis. A mask is used to disable or delay the notification of an incoming interrupt or signal.
+Can be masked. An interrupt can be masked on a per-CPU basis and a signal can be masked on a per-process basis. A mask is used to disable or delay the notification of an incoming interrupt or signal.
 
-If the mask indicates that the corresponding interrupt or signal is enabled, the incoming notification will trigger the corresponding handler. Interrupt handlers are specified for the entire system, by the operating system. Signal handlers are set on a per-process basis, by the process itself.
+If the mask indicates that the corresponding interrupt or signal is enabled, the incoming notification will trigger the corresponding handler. Interrupt handlers are specified for the entire system, by the operating system. Signal handlers are set on a per-process basis, by the process itself
+
+![Threads Issue](assets/P2L4/interrupt_signal_similarity.png)
 
 # Interrupt Handling
 
-When a device wants to send a notification to the CPU, it sends an interrupt by sending a signal through the interconnect that connects the device to the CPU.
+Device send a notification to CPU by sending a signal through the interconnect
 
-Most modern devices use a special message, MSI that can be carried on the same interconnect that connects the device to the CPU complex. Based on the pins on where the interrupt is received or the message itself, the interrupt can be uniquely identified.
+**MSI** is a special message, MSI that can be carried on the same interconnect that connects the device to the CPU complex.
 
-The interrupt interrupts the execution of the thread that was executing on top of the CPU, so now what? The CPU looks up the interrupt number in a table and executes the handler routine that the interrupt maps to. The interrupt number maps to the starting address of the handling routine, and the program counter can be set to point to that address to start handling the interrupt.
+Based on the pins on where the interrupt is received or the message itself, the interrupt can be uniquely identified
 
-All of this happens within the context of the thread that is interrupted.
+The CPU looks up the interrupt number in a table and executes the handler routine that the interrupt maps to. The interrupt number maps to the starting address of the handling routine, and the program counter can be set to point to that address to start handling the interrupt
 
-Which interrupts can occur depends on the hardware of the platform and how the interrupts are handled depends on the operating system running on the platform.
+All of this happens within the context of the thread that is interrupted
 
-[pic]
+**Which** interrupts can occur depends on the hardware of the platform
+
+**How** the interrupts are handled depends on the operating system running on the platform
+
+![Threads Issue](assets/P2L4/interrupt_handler.png)
 
 # Signal Handling
 
