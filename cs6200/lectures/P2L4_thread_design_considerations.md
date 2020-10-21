@@ -256,37 +256,52 @@ The library scheduler may also gain execution in response to certain signals fro
 
 # Issue On Multiple CPUs
 
-In a multi CPU system, the kernel level threads that support a process may be running concurrently on multiple CPUs. We may have a situation where the user level library that is operating in the context of one thread on one CPU needs to somehow impact what is running on another CPU.
+In a multi CPU system, we may need talk between CPUs.
 
 ## Scenario
 
-[pic]
+![Threads Issue](assets/P2L4/multi_cpu.png)
 
-Currently, T2 is holding the mutex and is executing on one CPU. T3 wants the mutex and is currently blocking. T1 is running on the other CPU.
+T2 is holding the mutex T3 want.  T1 is running on the other CPU
 
-At some point, T2 releases the mutex, and T3 becomes runnable. T1 needs to be preempted, but we make this realization from the user level thread library as T2 is unlocking the mutex. We need to preempt a thread on a different CPU!
+At some point, T2 releases the mutex, and T3 becomes runnable. T1 needs to be preempted on a different CPU
 
-We cannot directly modify the registers of one CPU when executing as another CPU. We need to send a signal from the context of one thread on one CPU to the context of the other thread on the other CPU, to tell the other CPU to execute the library code locally, so that the proper scheduling decisions can be made.
+We cannot directly modify the registers on another CPU. We need to send a signal from the context of one thread on one CPU to the context of the other thread on the other CPU
 
-Once the signal occurs, the library code can block T1 and schedule T3, keeping with the thread priorities within the application.
+Once the signal occurs, the library code can block T1 and schedule T3, keeping with the thread priorities within the application
+
+![Threads Issue](assets/P2L4/multi_cpu_signal.png)
 
 # Synchronization Related Issues
 
-[pic]
+![Threads Issue](assets/P2L4/sync_issue.png)
 
-T1 holds the mutex and is executing on one CPU. T2 and T3 are blocked. T4 is executing on another CPU and wishes to lock the mutex.
+T1 holds the mutex and is executing on one CPU. T2 and T3 are blocked. T4 is executing on another CPU and wishes to lock the mutex
 
-The normal behavior would be to place T4 on the queue associated with the mutex. However, on a multiprocessor system where things can happen in parallel, it may be the case that is the time T4 is placed on the queue, T1 has released the mutex.
+The normal behavior would be to place T4 on the queue associated with the mutex. If the critical section is long, we do so
 
-If the critical section is very short, the more efficient case for T4 is not to block, but just to spin (trying to acquire the mutex in a loop). If the critical section is long, it makes more sense to block (that is, be placed on a queue and retrieved at some later point in time). This is because it takes CPU cycles to spin, and we don't want to burn through cycles for a long time.
+But if the critical section is very short, no need block T4, but just to spin (trying to acquire the mutex in a loop)
 
-Mutexes which sometimes block and sometimes spin are called adaptive mutexes. These only make sense on multiprocessor systems, since we only want to spin if the owner of the mutex is currently executing in parallel to us.
+## Adaptive mutexes
 
-We need to store some information about the owner of a given mutex at a given time, so we can determine if the owner is currently running on a CPU, which means we should potentially spin. Also, we need to keep some information about the length of the critical section, which will give us further insight into whether we should spin or block.
+Mutexes which sometimes block and sometimes spin
 
-Once a thread is no longer needed, the memory associated with it should be freed. However, thread creation takes time, so it makes sense to reuse the data structures instead of freeing and creating new ones.
+Only on multiprocessor systems
 
-When a thread exits, the data structures are not immediately freed. Instead, the thread is marked as being on death row. Periodically, a special reaper thread will perform garbage collection on these thread data structures. If a request for a thread comes in before a thread on death row is reaped, the thread structure can be reused, which results in some performance gains.
+## Needed Information
+
+- The owner of a given mutex at a given time
+  - determine if the owner is currently running on a CPU
+
+- The length of the critical section
+
+## Thread Destroy
+
+Once a thread is no longer needed, the memory associated with it should be freed
+
+**Thread creation** takes time, so it's better to reuse the data structures instead of freeing and creating new ones
+
+![Threads Issue](assets/P2L4/thread_destroy.png)
 
 # Interrupts and Signals Intro
 
