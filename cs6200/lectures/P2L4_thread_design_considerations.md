@@ -213,113 +213,148 @@ Generally, the problem is that the user level library and the kernel have no ins
 
 # Thread Management Visibility and Design
 
-The kernel sees:
+### Kernel sees
 
 - Kernel level threads
 - CPUs
 - Kernel level scheduler
 
-The user level library sees:
+### User level library sees
 
 - User level threads
 - Available kernel level threads
 
-The user level library can request that one of its threads be bound to a kernel level thread. This means that this user level thread will always execute on top of a specific kernel level thread. This may be useful if in turn the kernel level thread is pinned to a particular CPU.
+The user level library can request one of its threads be bound to a kernel level thread. This is useful if in this kernel level thread is pinned to a particular CPU
 
-If a user level thread acquires a lock while running on top of a kernel level thread and that kernel level thread gets preempted, the user level library scheduler will cycle through the remaining user level threads and try to schedule them. If they need the lock, none will be able to execute and time will be wasted until the thread holding the lock is scheduled again.
+![Threads Visibility](assets/P2L4/thread_visibility.png)
 
-The user level library will make scheduling changes that the kernel is not aware of which will change the ULT/KLT mapping in the many to many case. Also, the kernel is unaware of the data structures used by the user level, such as mutexes and wait queues.
+### Lack of thread management visibility
 
-We should look at 1:1 ULT:KLT models.
+When a user level thread acquires a lock and that kernel level thread gets preempted. If reaming user level threads need the lock, none will be able to execute
 
-The process jumps to the user level library scheduler when:
+#### Many - Many Problems
+
+User level library will make scheduling changes that the kernel is not aware of which will change the ULT/KLT mapping in the many to many case
+
+ Also, the kernel is unaware of the data structures used by the user level, such as mutexes and wait queues
+
+![Threads Issue](assets/P2L4/visibility_issue.png)
+
+
+The process jumps to the user level library scheduler when
 
 - ULTs explicitly yield
 - Timer set by the by UL library expires
 - ULTs call library functions like lock/unlock
 - blocked threads become runnable
 
-The library scheduler may also gain execution in response to certain signals from timers and/or the kernel.
+The library scheduler may also gain execution in response to certain signals from timers and/or the kernel
+
+![Threads Issue](assets/P2L4/when_ul_run.png)
+
+![Threads Issue](assets/P2L4/ul_scheduler.png)
 
 # Issue On Multiple CPUs
 
-In a multi CPU system, the kernel level threads that support a process may be running concurrently on multiple CPUs. We may have a situation where the user level library that is operating in the context of one thread on one CPU needs to somehow impact what is running on another CPU.
+In a multi CPU system, we may need talk between CPUs.
 
 ## Scenario
 
-[pic]
+![Threads Issue](assets/P2L4/multi_cpu.png)
 
-Currently, T2 is holding the mutex and is executing on one CPU. T3 wants the mutex and is currently blocking. T1 is running on the other CPU.
+T2 is holding the mutex T3 want.  T1 is running on the other CPU
 
-At some point, T2 releases the mutex, and T3 becomes runnable. T1 needs to be preempted, but we make this realization from the user level thread library as T2 is unlocking the mutex. We need to preempt a thread on a different CPU!
+At some point, T2 releases the mutex, and T3 becomes runnable. T1 needs to be preempted on a different CPU
 
-We cannot directly modify the registers of one CPU when executing as another CPU. We need to send a signal from the context of one thread on one CPU to the context of the other thread on the other CPU, to tell the other CPU to execute the library code locally, so that the proper scheduling decisions can be made.
+We cannot directly modify the registers on another CPU. We need to send a signal from the context of one thread on one CPU to the context of the other thread on the other CPU
 
-Once the signal occurs, the library code can block T1 and schedule T3, keeping with the thread priorities within the application.
+Once the signal occurs, the library code can block T1 and schedule T3, keeping with the thread priorities within the application
+
+![Threads Issue](assets/P2L4/multi_cpu_signal.png)
 
 # Synchronization Related Issues
 
-[pic]
+![Threads Issue](assets/P2L4/sync_issue.png)
 
-T1 holds the mutex and is executing on one CPU. T2 and T3 are blocked. T4 is executing on another CPU and wishes to lock the mutex.
+T1 holds the mutex and is executing on one CPU. T2 and T3 are blocked. T4 is executing on another CPU and wishes to lock the mutex
 
-The normal behavior would be to place T4 on the queue associated with the mutex. However, on a multiprocessor system where things can happen in parallel, it may be the case that is the time T4 is placed on the queue, T1 has released the mutex.
+The normal behavior would be to place T4 on the queue associated with the mutex. If the critical section is long, we do so
 
-If the critical section is very short, the more efficient case for T4 is not to block, but just to spin (trying to acquire the mutex in a loop). If the critical section is long, it makes more sense to block (that is, be placed on a queue and retrieved at some later point in time). This is because it takes CPU cycles to spin, and we don't want to burn through cycles for a long time.
+But if the critical section is very short, no need block T4, but just to spin (trying to acquire the mutex in a loop)
 
-Mutexes which sometimes block and sometimes spin are called adaptive mutexes. These only make sense on multiprocessor systems, since we only want to spin if the owner of the mutex is currently executing in parallel to us.
+## Adaptive mutexes
 
-We need to store some information about the owner of a given mutex at a given time, so we can determine if the owner is currently running on a CPU, which means we should potentially spin. Also, we need to keep some information about the length of the critical section, which will give us further insight into whether we should spin or block.
+Mutexes which sometimes block and sometimes spin
 
-Once a thread is no longer needed, the memory associated with it should be freed. However, thread creation takes time, so it makes sense to reuse the data structures instead of freeing and creating new ones.
+Only on multiprocessor systems
 
-When a thread exits, the data structures are not immediately freed. Instead, the thread is marked as being on death row. Periodically, a special reaper thread will perform garbage collection on these thread data structures. If a request for a thread comes in before a thread on death row is reaped, the thread structure can be reused, which results in some performance gains.
+## Needed Information
+
+- The owner of a given mutex at a given time
+  - determine if the owner is currently running on a CPU
+
+- The length of the critical section
+
+## Thread Destroy
+
+Once a thread is no longer needed, the memory associated with it should be freed
+
+**Thread creation** takes time, so it's better to reuse the data structures instead of freeing and creating new ones
+
+![Threads Issue](assets/P2L4/thread_destroy.png)
 
 # Interrupts and Signals Intro
 
 ## Interrupts
 
-Interrupts are events that are generated externally by components other than the CPU to which the interrupt is delivered. Interrupts are notifications that some external event has occurred.
+Events generated externally other than the CPU
 
-Components that may deliver interrupts can include:
+- I/O devices, timers, other CPUs
 
-- I/O devices
-- Timers
-- Other CPUs
+Interrupts are notifications that some external event has occurred
 
 Which particular interrupts can occur on a given physical platform depends on the configuration of that platform, the types of devices the platform comes with, and the hardware architecture of the platform itself.
 
-Interrupts appear asynchronously. That is, they do not appear in response to any specific action that is taking place on the CPU.
+Interrupts appear asynchronously. They do not appear in response to any specific action that is taking place on the CPU
 
 ## Signals
 
-Signals are events that are triggered by the CPU and the software running on it.
+Signals are events that are triggered by the CPU and the software running on it
 
-Which signals can occur on a given platform depends very much on the given operating system. Two identical platforms will have the same interrupts but will have different signals if they are running different operating systems.
+Which signals can occur on a given platform depends very much on the given operating system. Two identical platforms will have the same interrupts but will have different signals if they are running different operating systems
 
-Signals can appear both synchronous and asynchronously. Signals can occur in direct response to an action taken by a CPU, or they can manifest similar to interrupts.
+Signals can appear both **synchronous** and **asynchronously**. Signals can occur in direct response to an action taken by a CPU, or they can manifest similar to interrupts
+
+![Threads Issue](assets/P2L4/interrupt_signal.png)
+
 
 ## Signal/Interrupt Similarities
 
-Both signals and interrupts have a unique identifier whose values depend on the hardware or operating system.
+Have a unique identifier whose values depend on the hardware or operating system
 
-Both interrupts and signals can be masked. An interrupt can be masked on a per-CPU basis and a signal can be masked on a per-process basis. A mask is used to disable or delay the notification of an incoming interrupt or signal.
+Can be masked. An interrupt can be masked on a per-CPU basis and a signal can be masked on a per-process basis. A mask is used to disable or delay the notification of an incoming interrupt or signal.
 
-If the mask indicates that the corresponding interrupt or signal is enabled, the incoming notification will trigger the corresponding handler. Interrupt handlers are specified for the entire system, by the operating system. Signal handlers are set on a per-process basis, by the process itself.
+If the mask indicates that the corresponding interrupt or signal is enabled, the incoming notification will trigger the corresponding handler. Interrupt handlers are specified for the entire system, by the operating system. Signal handlers are set on a per-process basis, by the process itself
+
+![Threads Issue](assets/P2L4/interrupt_signal_similarity.png)
 
 # Interrupt Handling
 
-When a device wants to send a notification to the CPU, it sends an interrupt by sending a signal through the interconnect that connects the device to the CPU.
+Device send a notification to CPU by sending a signal through the interconnect
 
-Most modern devices use a special message, MSI that can be carried on the same interconnect that connects the device to the CPU complex. Based on the pins on where the interrupt is received or the message itself, the interrupt can be uniquely identified.
+**MSI** is a special message, MSI that can be carried on the same interconnect that connects the device to the CPU complex.
 
-The interrupt interrupts the execution of the thread that was executing on top of the CPU, so now what? The CPU looks up the interrupt number in a table and executes the handler routine that the interrupt maps to. The interrupt number maps to the starting address of the handling routine, and the program counter can be set to point to that address to start handling the interrupt.
+Based on the pins on where the interrupt is received or the message itself, the interrupt can be uniquely identified
 
-All of this happens within the context of the thread that is interrupted.
+The CPU looks up the interrupt number in a table and executes the handler routine that the interrupt maps to. The interrupt number maps to the starting address of the handling routine, and the program counter can be set to point to that address to start handling the interrupt
 
-Which interrupts can occur depends on the hardware of the platform and how the interrupts are handled depends on the operating system running on the platform.
+All of this happens within the context of the thread that is interrupted
 
-[pic]
+**Which** interrupts can occur depends on the hardware of the platform
+
+**How** the interrupts are handled depends on the operating system running on the platform
+
+![Threads Issue](assets/P2L4/interrupt_handler.png)
 
 # Signal Handling
 
