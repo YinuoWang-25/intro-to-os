@@ -213,33 +213,46 @@ Generally, the problem is that the user level library and the kernel have no ins
 
 # Thread Management Visibility and Design
 
-The kernel sees:
+### Kernel sees
 
 - Kernel level threads
 - CPUs
 - Kernel level scheduler
 
-The user level library sees:
+### User level library sees
 
 - User level threads
 - Available kernel level threads
 
-The user level library can request that one of its threads be bound to a kernel level thread. This means that this user level thread will always execute on top of a specific kernel level thread. This may be useful if in turn the kernel level thread is pinned to a particular CPU.
+The user level library can request one of its threads be bound to a kernel level thread. This is useful if in this kernel level thread is pinned to a particular CPU
 
-If a user level thread acquires a lock while running on top of a kernel level thread and that kernel level thread gets preempted, the user level library scheduler will cycle through the remaining user level threads and try to schedule them. If they need the lock, none will be able to execute and time will be wasted until the thread holding the lock is scheduled again.
+![Threads Visibility](assets/P2L4/thread_visibility.png)
 
-The user level library will make scheduling changes that the kernel is not aware of which will change the ULT/KLT mapping in the many to many case. Also, the kernel is unaware of the data structures used by the user level, such as mutexes and wait queues.
+### Lack of thread management visibility
 
-We should look at 1:1 ULT:KLT models.
+When a user level thread acquires a lock and that kernel level thread gets preempted. If reaming user level threads need the lock, none will be able to execute
 
-The process jumps to the user level library scheduler when:
+#### Many - Many Problems
+
+User level library will make scheduling changes that the kernel is not aware of which will change the ULT/KLT mapping in the many to many case
+
+ Also, the kernel is unaware of the data structures used by the user level, such as mutexes and wait queues
+
+![Threads Issue](assets/P2L4/visibility_issue.png)
+
+
+The process jumps to the user level library scheduler when
 
 - ULTs explicitly yield
 - Timer set by the by UL library expires
 - ULTs call library functions like lock/unlock
 - blocked threads become runnable
 
-The library scheduler may also gain execution in response to certain signals from timers and/or the kernel.
+The library scheduler may also gain execution in response to certain signals from timers and/or the kernel
+
+![Threads Issue](assets/P2L4/when_ul_run.png)
+
+![Threads Issue](assets/P2L4/ul_scheduler.png)
 
 # Issue On Multiple CPUs
 
