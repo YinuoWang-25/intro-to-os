@@ -239,6 +239,7 @@ It's a hashing function
 ```c
 shmat(shmid, addr, flags)
 ```
+
 addr - provide the virtual addresses to which the segment should be mapped, using the addr argument
 - If NULL is passed, os will choose some suitable addresses.
 
